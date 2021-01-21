@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: Molly Bruce
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -16,22 +16,21 @@ This exercise accompanies the introductory material in Environmental Data Analyt
 6. When you have completed the assignment, **Knit** the text and code into a single PDF file.
 8. After Knitting, submit the completed exercise (PDF file) to the dropbox in Sakai. Add your last name into the file name (e.g., "Salk_A03_Introduction.Rmd") prior to submission.
 
-The completed exercise is due on <>.
+The completed exercise is due on January 26, 2021.
 
 ## 1) Discussion Questions
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: My previous experience with all 3 is limited. I've interacted with R as part of a Bass Connections course on passively monitoring oyster reefs. We processed, analyzed, and visualized bioacoustic data using Tidyverse. However, I have not taken a formal course in R. I've interacted with Git by way of Advanced GIS and also as part of my participation in NASA Develop, though I'm still growing comfortable with the platform/process. I'm least versed in data analytics and, historically, have strong-armed my way through cleaning and processing data.
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: Truthfully, no...I'm excited for the material and I don't think I'm getting in over my head, but I also don't want to overstate my experience and to say that I feel confident in any particular skillset ancillary to data analytics would be overstating my qualifications. 
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
-
+> Answer: I'm most nervous about whether or not I'll feel comfortable operating in R. It seems like this course will move more quickly than Advanced GIS insofar as coding fluency is concerned--a little nerveracking since I remember a couple weeks of Python coding during Advanced GIS when I felt like I was drowning. I was definitely partially to blame for getting overwhelmed in Advanced GIS...I should have chunked out the larger assignment and asked for help earlier/more often...lesson hopefully learned. I don't want to feel like I'm drowning in this course and in R, but am nonetheless apprehensive.
 
 ## 2) GitHub
 
