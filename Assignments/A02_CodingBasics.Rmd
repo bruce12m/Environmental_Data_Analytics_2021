@@ -1,6 +1,6 @@
 ---
 title: "Assignment 2: Coding Basics"
-author: "Student Name"
+author: Molly Bruce
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -31,11 +31,22 @@ This exercise accompanies the lessons in Environmental Data Analytics on coding 
 4. Insert comments in your code to describe what you are doing.
 
 ```{r}
-#1. 
+#1. The sequence command generates a list of numbers beginning at the first number in the parenthesis, ending at the second number in the parenthesis, and by increments of the third number in the parenthesis. 
 
-#2. 
+S = seq(1, 100, 4)
 
-#3. 
+#2. These two functions are fairly self-explanatory--include in the parenthesis the variable you've assigned to the group of numbers you'd like to analyze. Because I know I'll be running a comparative analysis of the mean and median of our sequence, I've also assigned the mean and median to two new variables.
+
+M = median(S)
+A = mean(S)
+
+#3. I chose to use an if-else statement to determine how the mean and median compare. It's important to place the tildes, print statements, and else statement in particular locations (as shown below), otherwise R will throw back an error message. The outcome of this print statement is populated in the Console tab.
+
+if (A > M) {
+  print("mean is greater than median")
+  } else {
+  print("mean is not greater than median")
+  }
 
 ```
 
