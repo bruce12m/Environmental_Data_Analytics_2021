@@ -12,3 +12,8 @@ Commit is like saving something locally.
 
 ## push 
 The push command sends the locally saved commit to your online, forked repository.
+
+## other commands
+$ git remote -v 
+$ git status 
+$ git push 
