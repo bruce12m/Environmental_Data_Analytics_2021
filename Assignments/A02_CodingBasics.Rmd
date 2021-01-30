@@ -91,26 +91,28 @@ print(StudentPerformanceDF_titled)
 
 > Answer: A dataframe can have data of different types, while a matrix must have uniform datatypes. So, for instance, we have a character field, a numeric field, and a logical field in our dataframe. However, a matrix could only have one of these--perhaps only numeric values. 
 
-10. Create a function with an if/else statement. Your function should determine whether a test score is a passing grade of 50 or above (TRUE or FALSE). You will need to choose either the `if` and `else` statements or the `ifelse` statement. Hint: Use `print`, not `return`. The name of your function should be informative.
-
-11. Apply your function to the vector with test scores that you created in number 5. 
-
+c
 ```{r}
 
-#10. Below, I am simply creating an in/else function. As written, this function would only apply to the first Grade in our vector; it would not iterate through all students' grades. We will address this issue next. 
+#10. Below, I first create a simply in/else function (hashed out). As written, this function would only apply to the first Grade in our vector; it would not iterate through all students' grades. Next, I use the ifelse approach which allows me to iterate through all values in a vector and output an answer for each value (also hashed out). However, this doesn't allow me to change the function's input. To address this issue, I create the Recipe portion of our Meal, labeled PassFailFunction, using an ifelse statement.
 
-BadPassFailFunction = if (Grade >= 50) {
-  print("Passed")
-  } else {
-  print("Failed")
-  }
+      #BadPassFailFunction = if (Grade >= 50) {
+      #  print("Passed")
+      #  } else {
+      #  print("Failed")
+      #  }
 
-#11. Next, I use the ifelse approach which allows me to iterate through all values in a vector and output an answer for each value. 
+      # GoodPassFailFunction = ifelse(Grade >=50, "Passed", "Failed")
 
-GoodPassFailFunction = ifelse(Grade >=50, "Passed", "Failed")
+PassFailFunction <- function(x){
+  ifelse (x >= 50, "Passed", "Failed")}
+
+#11. I incorporate my Recipe into my Meal, using Grades as the input for our Function and outputting a new vector titled AppliedPassFailFunction with character data showing whether each score represents a passing or failing score. This approach allows me to change the input vector. 
+
+AppliedPassFailFunction <- PassFailFunction(x = Grade)
 
 ```
 
 12. QUESTION: Which option of `if` and `else` vs. `ifelse` worked? Why?
 
-> Answer: 
+> Answer: Both options "worked", though only the ifelse approach iterated through all 4 entries of the vector and outputs the results into a new vector. Basically, if/else doesn't play nicely with vectors, while ifelse does. 
