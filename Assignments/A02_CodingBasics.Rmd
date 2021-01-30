@@ -59,33 +59,37 @@ if (A > M) {
 
 ```{r}
 
-#5. 
+#5. I have assumed that, by telling us to create these vectors, you'd also like us to populate them with information. 
 
 Name <- c("Aaron", "Beth", "Charlie", "Debbie")
 Grade <- c(84, 79, 48, 91)
 PassFail <- c(TRUE, TRUE, FALSE, TRUE)
 
-#6. 
+#6. Though the important function is the class() function, I've also included descriptive print statements above each class() function.
 
-class(Name)
-class(Grade)
-class(PassFail)
+print("The vector titled Name is vector type: ") 
+  class(Name)
+print("The vector titled Grade is vector type: ") 
+  class(Grade)
+print("The vector titled PassFail is vector type: ") 
+  class(PassFail)
 
-#7.
+#7. I used the cbind function to assign the 3 individual vectors to a signle dataframe titled StudentPerformanceDF (DF being short for dataframe). I printed that dataframe for my own benefit.
 
-Dataframe <- cbind(Name,Grade,PassFail)
-print(Dataframe)
+StudentPerformanceDF <- cbind(Name,Grade,PassFail)
+print(StudentPerformanceDF)
 
-#8.
+#8.Though I already gave my vectors fairly logical and informative titles at #5 and these titles became column headings when the vectors were combined into a single dataframe, I've shown the process for assigning new (and hopefully more descriptive) column titles within a dataframe using the data.frame() function and then printed the updated dataframe for my own benefit.
 
-colnames(Dataframe)
-Dataframe_titled <- data.frame("Student Name"=Name,"Test Score"=Grade,"Student Passed"=PassFail)
+colnames(StudentPerformanceDF)
+StudentPerformanceDF_titled <- data.frame("StudentName"=Name,"TestScore"=Grade,"StudentPassed"=PassFail)
+print(StudentPerformanceDF_titled)
 
 ```
 
 9. QUESTION: How is this data frame different from a matrix?
 
-> Answer: A dataframe can have data of different types, while a matrix must have uniform datatypes. So, for instance, we have a character field, a numeric field, and a logical field in our dataframe above. However, a matrix could only have one of these--perhaps only numeric values. 
+> Answer: A dataframe can have data of different types, while a matrix must have uniform datatypes. So, for instance, we have a character field, a numeric field, and a logical field in our dataframe. However, a matrix could only have one of these--perhaps only numeric values. 
 
 10. Create a function with an if/else statement. Your function should determine whether a test score is a passing grade of 50 or above (TRUE or FALSE). You will need to choose either the `if` and `else` statements or the `ifelse` statement. Hint: Use `print`, not `return`. The name of your function should be informative.
 
@@ -93,13 +97,17 @@ Dataframe_titled <- data.frame("Student Name"=Name,"Test Score"=Grade,"Student P
 
 ```{r}
 
-#10.
+#10. Below, I am simply creating an in/else function. As written, this function would only apply to the first Grade in our vector; it would not iterate through all students' grades. We will address this issue next. 
 
+BadPassFailFunction = if (Grade >= 50) {
+  print("Passed")
+  } else {
+  print("Failed")
+  }
 
+#11. Next, I use the ifelse approach which allows me to iterate through all values in a vector and output an answer for each value. 
 
-#11.
-
-
+GoodPassFailFunction = ifelse(Grade >=50, "Passed", "Failed")
 
 ```
 
