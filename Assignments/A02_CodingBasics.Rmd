@@ -91,7 +91,6 @@ print(StudentPerformanceDF_titled)
 
 > Answer: A dataframe can have data of different types, while a matrix must have uniform datatypes. So, for instance, we have a character field, a numeric field, and a logical field in our dataframe. However, a matrix could only have one of these--perhaps only numeric values. 
 
-c
 ```{r}
 
 #10. Below, I first create a simply in/else function (hashed out). As written, this function would only apply to the first Grade in our vector; it would not iterate through all students' grades. Next, I use the ifelse approach which allows me to iterate through all values in a vector and output an answer for each value (also hashed out). However, this doesn't allow me to change the function's input. To address this issue, I create the Recipe portion of our Meal, labeled PassFailFunction, using an ifelse statement.
@@ -115,4 +114,4 @@ AppliedPassFailFunction <- PassFailFunction(x = Grade)
 
 12. QUESTION: Which option of `if` and `else` vs. `ifelse` worked? Why?
 
-> Answer: Both options "worked", though only the ifelse approach iterated through all 4 entries of the vector and outputs the results into a new vector. Basically, if/else doesn't play nicely with vectors, while ifelse does. 
+> Answer: Both options "worked", though only the ifelse approach iterated through all 4 entries of the vector and output the results into a new vector. Basically, if/else doesn't play nicely with vectors, while ifelse does. 
