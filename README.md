@@ -5,6 +5,7 @@ Name: Molly Bruce
 
 ## git pull upstream main
 Type command "git pull upstream main" in R Terminal to sync forked repository with the original repository.
+Git pull is actually just a command that combines fetch and merge.
 
 ## commit 
 Always include comments with commits so that you know what you were doing.
