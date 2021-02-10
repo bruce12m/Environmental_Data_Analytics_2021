@@ -49,7 +49,7 @@ Litter <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv")
 
 3. The Niwot Ridge litter and woody debris dataset was collected from the National Ecological Observatory Network, which collectively includes 81 aquatic and terrestrial sites across 20 ecoclimatic domains. 32 of these sites sample forest litter and woody debris, and we will focus on the Niwot Ridge long-term ecological research (LTER) station in Colorado. Why might we be interested in studying litter and woody debris that falls to the ground in forests? Feel free to do a brief internet search if you feel you need more background information. 
 
-> Answer: The amount of (leaf) litter and woody debris can influence stream health. Both litter and woody debris influence sedimentation, turbidity, and erosion for the waterbodies within the forested area being studied. River/water health then influences ecological function more broadly. Furthermore, forested areas are essential carbon sinks and woody debris/litter data can provide insights into the productivity of an area and that productivity's potential implications for its carbon absorption capacity. 
+> Answer: The amount of litter and woody debris can influence stream health. Both litter and woody debris influence sedimentation, turbidity, and erosion for the waterbodies within the forested area being studied. River/water health then influences ecological function more broadly. Furthermore, forested areas are essential carbon sinks and woody debris/litter data can provide insights into the productivity of an area and that productivity's potential implications for its carbon absorption capacity. 
 
 4. How is litter and woody debris sampled as part of the NEON network? Read the NEON_Litterfall_UserGuide.pdf document to learn more. List three pieces of salient information about the sampling methods here: 
 
@@ -70,6 +70,7 @@ View(Litter) #this is for my own benefit
 6. Using the `summary` function on the "Effects" column, determine the most common effects that are studied. Why might these effects specifically be of interest?
 
 ```{r}
+#The most recent version of R doesn't run traditional summary functions. Instead, users now have to convert character data into factor data and then feed this factor data into the summary function. This is per feedback on Slack. 
 EffectsFactors <- as.factor(Neonics$Effect)
 summary(EffectsFactors)
 ```
@@ -79,6 +80,7 @@ summary(EffectsFactors)
 7. Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
 
 ```{r}
+#Again, same factor approach as above. 
 CommonNameFactor <- as.factor(Neonics$Species.Common.Name)
 summary(CommonNameFactor)
 ```
@@ -115,7 +117,7 @@ Interpret this graph. What are the most common test locations, and do they diffe
 11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information. 
 
 ```{r, fig.height = 6, fig.width = 4}
-ggplot(Neonics, aes(y = Endpoint)) + geom_bar()
+ggplot(Neonics, aes(y = Endpoint)) + geom_bar() #I chose to put the Endpoint data on the y axis so that it would be easier to read. 
 ```
 
 > Answer: LOEL (lowest observable effect level: the lowest concentration producing effects that were significantly different from response controls) and NOEL (no observable effect level: the highest concentration producing effects that were not significantly different from respons controls) occur most often.
@@ -142,7 +144,7 @@ unique(Litter$plotID)
 
 14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
 ```{r, fig.height = 2.5, fig.width = 6}
-ggplot(Litter, aes(y = functionalGroup)) + geom_bar()
+ggplot(Litter, aes(y = functionalGroup)) + geom_bar() #again, I chose to put the functionalGroup on the y axis so that it would be easier to read.
 ```
 
 15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin plot of dryMass by functionalGroup. 
