@@ -130,7 +130,7 @@ class(Litter$collectDate)
 13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
 
 ```{r}
-
+unique(Litter$)
 ```
 
 > Answer: 
