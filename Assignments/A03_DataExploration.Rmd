@@ -26,19 +26,15 @@ The completed exercise is due on <>.
 ##Check my working directory 
 getwd()
 ##Set my working directory because, for some reason, it was changing it to the Assignments folder and this was causing an error when I went to load by CSVs
-setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
+#setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
 
 ##Install & load packages 
-install.packages("tidyverse") #installing tidyverse package 
-#install.packages("dplyr") #for my own benefit in future assignments 
-#install.packages("ggplot2") #for my own benefit in future assignments
+#install.packages("tidyverse") #installing tidyverse package, commented out for knit
 library(tidyverse) #loading the tidyverse package
-#library(dplyr) #for my own benefit in future assignments
-#library(ggplot2) #for my own benefit in future assignments
 
 ##Upload datasets 
-Neonics <- read.csv("./Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv")
-Litter <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv")
+Neonics <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv")
+Litter <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv")
 ```
 
 ## Learn about your system
@@ -61,8 +57,8 @@ Litter <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv")
 
 ```{r}
 dim(Neonics) #this is actually conducting the dimension analysis
-View(Neonics) #this is for my own benefit
-View(Litter) #this is for my own benefit
+#View(Neonics) #this is for my own benefit
+#View(Litter) #this is for my own benefit
 ```
 
 ## Check our date column
@@ -160,3 +156,4 @@ Why is the boxplot a more effective visualization option than the violin plot in
 What type(s) of litter tend to have the highest biomass at these sites? 
 
 > Answer: Needles and mixed content tend to have the highest biomass. This makes sense because needles are more dense and take longer to biodegrade than leaves, powers, etc. Needles are also more abundant at higher altitudes such as Niwot Ridge which sits at ~10,000 ft ASL. 
+
