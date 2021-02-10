@@ -49,20 +49,20 @@ Litter <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv")
 
 3. The Niwot Ridge litter and woody debris dataset was collected from the National Ecological Observatory Network, which collectively includes 81 aquatic and terrestrial sites across 20 ecoclimatic domains. 32 of these sites sample forest litter and woody debris, and we will focus on the Niwot Ridge long-term ecological research (LTER) station in Colorado. Why might we be interested in studying litter and woody debris that falls to the ground in forests? Feel free to do a brief internet search if you feel you need more background information. 
 
-> Answer: 
+> Answer: The amount of (leaf) litter and woody debris can influence stream health. Both litter and woody debris influence sedimentation, turbidity, and erosion for the waterbodies within the forested area being studied. River/water health then influences ecological function more broadly. Furthermore, forested areas are essential carbon sinks and woody debris/litter data can provide insights into the productivity of an area and that productivity's potential implications for its carbon absorption capacity. 
 
 4. How is litter and woody debris sampled as part of the NEON network? Read the NEON_Litterfall_UserGuide.pdf document to learn more. List three pieces of salient information about the sampling methods here: 
 
-> Answer: 
+> Answer: Researchers rely on paired elevated traps and ground traps to capture litter and woody debris. ~ 4 of these paired traps are placed over a 400 square meter plot. Samples are collected from each trap pair once per year. These collected materials are separated based on their cover-type (needles, leaves, twigs/branches, cones/bark, seeds, etc.) and weighed. 
 
 ## Obtain basic summaries of your data (Neonics)
 
 5. What are the dimensions of the dataset?
 
 ```{r}
-dim(Neonics)
-View(Neonics)
-View(Litter)
+dim(Neonics) #this is actually conducting the dimension analysis
+View(Neonics) #this is for my own benefit
+View(Litter) #this is for my own benefit
 ```
 
 ## Check our date column
@@ -70,26 +70,28 @@ View(Litter)
 6. Using the `summary` function on the "Effects" column, determine the most common effects that are studied. Why might these effects specifically be of interest?
 
 ```{r}
-summary(Neonics$Effect)
+EffectsFactors <- as.factor(Neonics$Effect)
+summary(EffectsFactors)
 ```
 
-> Answer: 
+> Answer: Scientists are interested in understanding the impacts of insecticides, fungicides, and other chemicals linked to agriculture on insects. Of course, a foremost impact would be insect death at the individual level and insect decline at the population level. Both of these imapcts are observable and of grave concern. However, other impacts may also indicate pernicious impacts to insects caused by neonics. For instance, behavioral changes broadly nad feeding behavior changes more specifically may be a cause for concern. Generally, all of the effects interest scientists because they represent some measure of insect health liked to neonics.  
 
 7. Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
 
 ```{r}
-summary(Neonics$Species.Common.Name)
+CommonNameFactor <- as.factor(Neonics$Species.Common.Name)
+summary(CommonNameFactor)
 ```
 
-> Answer: 
+> Answer: Excluding the "Other" category, the six most commonly studied species are (1) Honey Bee, (2) Parasitic Wasp, (3) Buff Tailed Bumblebee, (4) Carniolan Honey Been, (5) Bumble Bee, and (6) Italian Honeybee. Each of these insects are polinators. There is particular recognition that insecticides, fungicides, and other chemical applicants to agriculture have particular impact on polinators. These impacts are important because populations of polinators have been declining over the past several decades and these declines pose substantial risks to our methods of food production. Scientists would be interested in studying the impacts of neonics on polinators such as the above six bees in order to understand ways to minimize harms to these polinators linked to agricultural practices. 
 
 8. Concentrations are always a numeric value. What is the class of Conc.1..Author. in the dataset, and why is it not numeric?
 
 ```{r}
-
+class(Neonics$Conc.1..Author.)
 ```
 
-> Answer:
+> Answer: The class type of Conc.1..Author. is character, likely because it includes some non-numeric inputs such as NR, NR/, and #/. Absent any character-based and symbol-based inputs, RStudio would have read this column as a numeric class. 
 
 ## Explore your data graphically (Neonics)
 
@@ -108,7 +110,7 @@ ggplot(Neonics) + geom_freqpoly(aes(x = Publication.Year, color = Test.Location)
 
 Interpret this graph. What are the most common test locations, and do they differ over time?
 
-> Answer: 
+> Answer: The most common test locations are (1) in the lab and (2) in the natural field. Though natural field-based tests were most common throughout the 90s and around 2009, lab-based tests were far and away the most common test location throughout the 2010s. It's possible that scientists sought more sophisticated testing methods that just weren't possible in the field, thus the transition to more lab-based testing.  
 
 11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information. 
 
@@ -116,7 +118,7 @@ Interpret this graph. What are the most common test locations, and do they diffe
 ggplot(Neonics, aes(y = Endpoint)) + geom_bar()
 ```
 
-> Answer: LOEL and NOEL occur most often.
+> Answer: LOEL (lowest observable effect level: the lowest concentration producing effects that were significantly different from response controls) and NOEL (no observable effect level: the highest concentration producing effects that were not significantly different from respons controls) occur most often.
 
 ## Explore your data (Litter)
 
