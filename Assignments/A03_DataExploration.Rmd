@@ -127,30 +127,34 @@ ggplot(Neonics, aes(y = Endpoint)) + geom_bar()
 class(Litter$collectDate)
 Litter$collectDate <- as.Date(Litter$collectDate, format = "%Y-%m-%d")
 class(Litter$collectDate)
+unique(Litter$collectDate)
 ```
 
 13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
 
 ```{r}
-unique(Litter$)
+unique(Litter$plotID)
+#plotIDFactor <- as.factor(Litter$plotID)
+#summary(plotIDFactor)
 ```
 
-> Answer: 
+> Answer: It looks like 12 plots were sampled. For a character class, the Unique function displays values different from the others, but only displays them once. For a character class, if we convert that class into a factor and then run the summary function (as done above because this version of R requires an additional step for the summary function), we can see not just the different values but also the count for each of those different values.  
 
 14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
-```{r}
-
+```{r, fig.height = 2.5, fig.width = 6}
+ggplot(Litter, aes(y = functionalGroup)) + geom_bar()
 ```
 
 15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin plot of dryMass by functionalGroup. 
-```{r}
-
+```{r, fig.height = 2.5, fig.width = 8}
+ggplot(Litter) + geom_boxplot(aes(x = dryMass, y = functionalGroup))
+ggplot(Litter) + geom_violin(aes(x = dryMass, y = functionalGroup))
 ```
 
 Why is the boxplot a more effective visualization option than the violin plot in this case?
 
-> Answer: 
+> Answer: The boxplot does a more effective job of displaying this type of spread-out data because it shows the range of values and the distribution of values within that range using lines and boxes. It does a better job of displaying outliers and quartiles. Alternatively, if our data were clustered very heavily around particular measurements (dryMasses) with only a couple outliers, the violin plot might be a more useful tool. However, because our data is more spread out and we have wide variability in dryMass depending on the functionalGroup, the box plot's visualization captures the data better. 
 
 What type(s) of litter tend to have the highest biomass at these sites? 
 
-> Answer: 
+> Answer: Needles and mixed content tend to have the highest biomass. This makes sense because needles are more dense and take longer to biodegrade than leaves, powers, etc. Needles are also more abundant at higher altitudes such as Niwot Ridge which sits at ~10,000 ft ASL. 
