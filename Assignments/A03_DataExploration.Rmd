@@ -67,11 +67,13 @@ Litter <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv")
 
 ```{r}
 dim(Neonics)
+colnames(Neonics)
+# Check our date column
 ```
 
 6. Using the `summary` function on the "Effects" column, determine the most common effects that are studied. Why might these effects specifically be of interest?
 ```{r}
-summary(Neonics$Effect)
+summary(Neonics$Effect.mode)
 ```
 
 > Answer: 
@@ -79,7 +81,7 @@ summary(Neonics$Effect)
 7. Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
 
 ```{r}
-summary(Neonics$Species.Common.Name.mean)
+summary(Neonics$Common.Name.mode)
 ```
 
 > Answer: 
@@ -97,13 +99,15 @@ summary(Neonics$Species.Common.Name.mean)
 ## Explore your data graphically (Neonics)
 
 9. Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year. 
-```{r}
-
+```{r, fig.height = 3, fig.width = 6}
+ggplot(Neonics) +
+  geom_freqpoly(aes(x = Publication.Year))
 ```
 
 10. Reproduce the same graph but now add a color aesthetic so that different Test.Location are displayed as different colors.
-```{r}
-
+```{r, fig.height = 3, fig.width = 6}
+ggplot(Neonics) +
+  geom_freqpoly(aes(x = Publication.Year)) 
 ```
 
 Interpret this graph. What are the most common test locations, and do they differ over time?
