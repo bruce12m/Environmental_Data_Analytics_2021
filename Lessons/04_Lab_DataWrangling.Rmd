@@ -88,7 +88,7 @@ NTL.phys.data.processed <-
 NTL.phys.data.Tuesday90s2 <- 
   NTL.phys.data %>%
   mutate(month = month(sampledate)) %>%
-  filter(lakename == "Tuesday Lake", year4 >= 1990, year4 <= 1999, month == 7) %>% 
+  filter(lakename == "Tuesday Lake", year4 >= 1990, year4 <= 1999, month == 7)
 
 #Exercise 4: Using the data from part 3, a pipe and the summarise() function find the mean surface temperature (hints: you will need to add another filter for depth==0). Make sure you eliminate NAs before computing the means
 NTL.phys.data.statistics <- 
