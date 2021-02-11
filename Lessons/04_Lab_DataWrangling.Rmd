@@ -46,6 +46,9 @@ class(NTL.phys.data$depth)
 # dplyr filtering
 NTL.phys.data.surface <- filter(NTL.phys.data, depth == 0)
 
+#matrix filtering 
+sampl1 <- NTL.phys.data[NTL.phys.data$depth == 0]
+
 # Choose multiple conditions to filter
 summary(NTL.phys.data$lakename)
 NTL.phys.data.PeterPaul <- filter(NTL.phys.data, lakename %in% c("Paul Lake", "Peter Lake"))
@@ -57,16 +60,16 @@ NTL.phys.data.JunethruOctober <- filter(NTL.phys.data, daynum %in% c(152:304))
 # Exercise 1: 
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?
-
+NTL.phys.data.1999 <- filter(NTL.phys.data, year4 == 1999)
 
 # Exercise 2: 
 # filter NTL.phys.data for Tuesday Lake from 1990 through 1999.
-
+NTL.phys.data.Tuesday90s <- filter(NTL.phys.data, lakename == "Tuesday Lake" & year4 %in% (1990:1999))
 
 ```
 Question: Why don't we filter using row numbers?
 
-> Answer: 
+> Answer: Not as reproducable 
 
 ## Pipes
 
@@ -82,13 +85,16 @@ NTL.phys.data.processed <-
   mutate(temperature_F = (temperature_C*9/5) + 32)
 
 #Exercise 3: Using a pipe filter NTL.phys.data for Tuesday Lake from 1990 through 1999 only for July 
-
-
-
-
+NTL.phys.data.Tuesday90s2 <- 
+  NTL.phys.data %>%
+  mutate(month = month(sampledate)) %>%
+  filter(lakename == "Tuesday Lake", year4 >= 1990, year4 <= 1999, month == 7) %>% 
 
 #Exercise 4: Using the data from part 3, a pipe and the summarise() function find the mean surface temperature (hints: you will need to add another filter for depth==0). Make sure you eliminate NAs before computing the means
-
+NTL.phys.data.statistics <- 
+  NTL.phys.data.Tuesday90s2 %>% 
+  filter(depth == 0) %>% 
+  summarize(mean_surface_temp_C = mean(temperature_C))
   
 ```
 
@@ -98,7 +104,11 @@ For gather we will use `pivot_longer` and for spread we will use `pivot_wider`.
 
 ```{r}
 #Exercise 5: gather irradiance data (measured in the water column and measured on the deck of the sampling boat) into one column using pivot_longer
-
+NTL.phys.data.irradiance <- NTL.phys.data %>% 
+  pivot_longer(c(irradianceWater, irradianceDeck),
+               names_to = "irradiance",
+               values_to = "rads")
+  
 
 #Exercise 6: spread temperatureC into more than one column based on the depth
 
