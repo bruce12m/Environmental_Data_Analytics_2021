@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4: Data Wrangling"
-author: "Student Name"
+author: Molly Bruce
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -25,8 +25,48 @@ The completed exercise is due on Tuesday, Feb 16 @ 11:59pm.
 
 ```{r, message = FALSE}
 #1
+getwd()
+setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
+
+install.packages(tidyverse)
+install.packages(lubridate)
+#install.packages(plyr)
+
+library(tidyverse)
+library(lubridate)
+#library(plyr)
+
+#The ideal format for calling these datafiles is a relative path using the format EPAair_O3_NC_2019 <- read.csv("./Data/Raw/EPAair_O3_NC2019_raw.csv", stringsAsFactors = TRUE) however, this method has thrown errors for me on Assignment 3 and also on this assignment. Therefore, I hard-coded the path, though this isn't ideal. 
+EPAair_O3_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2019_raw.csv", stringsAsFactors = TRUE)
+EPAair_O3_NC_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2018_raw.csv", stringsAsFactors = TRUE)
+EPAair_PM25_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2019_raw.csv", stringsAsFactors = TRUE)
+EPAair_PM25_NC_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2018_raw.csv", stringsAsFactors = TRUE)
 
 #2
+colnames(EPAair_O3_NC_2019)
+head(EPAair_O3_NC_2019)
+summary(EPAair_O3_NC_2019)
+str(EPAair_O3_NC_2019)
+dim(EPAair_O3_NC_2019)
+
+colnames(EPAair_O3_NC_2018)
+head(EPAair_O3_NC_2018)
+summary(EPAair_O3_NC_2018)
+str(EPAair_O3_NC_2018)
+dim(EPAair_O3_NC_2018)
+
+colnames(EPAair_PM25_NC_2019)
+head(EPAair_PM25_NC_2019)
+summary(EPAair_PM25_NC_2019)
+str(EPAair_PM25_NC_2019)
+dim(EPAair_PM25_NC_2019)
+
+colnames(EPAair_PM25_NC_2018)
+head(EPAair_PM25_NC_2018)
+summary(EPAair_PM25_NC_2018)
+str(EPAair_PM25_NC_2018)
+dim(EPAair_PM25_NC_2018)
+
 ```
 
 ## Wrangle individual datasets to create processed files.
@@ -36,13 +76,26 @@ The completed exercise is due on Tuesday, Feb 16 @ 11:59pm.
 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
 
 ```{r}
-#3
+#3 I am assuming that by saying "Change date to date" you mean that you want us to parse the string turned factor into a traditional date object 
+EPAair_O3_NC_2019$Date <- as.Date(EPAair_O3_NC_2019$Date, format = "%m/%d/%Y")
+EPAair_O3_NC_2018$Date <- as.Date(EPAair_O3_NC_2018$Date, format = "%m/%d/%Y")
+EPAair_PM25_NC_2019$Date <- as.Date(EPAair_PM25_NC_2019$Date, format = "%m/%d/%Y")
+EPAair_PM25_NC_2018$Date <- as.Date(EPAair_PM25_NC_2018$Date, format = "%m/%d/%Y")
 
-#4
+#4 
+EPAair_O3_NC_2019_selected <- select(EPAair_O3_NC_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+EPAair_O3_NC_2018_selected <- select(EPAair_O3_NC_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+EPAair_PM25_NC_2019_selected <- select(EPAair_PM25_NC_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+EPAair_PM25_NC_2018_selected <- select(EPAair_PM25_NC_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
 #5
+#mutate()
 
 #6
+write.csv(EPAair_O3_NC_2019_selected, row.names = FALSE, file = "./Data/Processed/EPAair_O3_NC2019_processed.csv")
+write.csv(EPAair_O3_NC_2018_selected, row.names = FALSE, file = "./Data/Processed/EPAair_O3_NC2018_processed.csv") 
+write.csv(EPAair_PM25_NC_2019_selected, row.names = FALSE, file = "./Data/Processed/EPAair_PM25_NC2019_processed.csv")
+write.csv(EPAair_PM25_NC_2018_selected, row.names = FALSE, file = "./Data/Processed/EPAair_PM25_NC2018_processed.csv")
 
 ```
 
@@ -62,6 +115,12 @@ The completed exercise is due on Tuesday, Feb 16 @ 11:59pm.
 
 ```{r}
 #7
+EPAair_O3_NC2019_processed <- read.csv("./Data/Processed/EPAair_O3_NC2019_processed.csv")
+EPAair_O3_NC2018_processed <- read.csv("./Data/Processed/EPAair_O3_NC2018_processed.csv")
+EPAair_PM25_NC2019_processed <- read.csv("./Data/Processed/EPAair_PM25_NC2019_processed.csv")
+EPAair_PM25_NC2018_processed <- read.csv("./Data/Processed/EPAair_PM25_NC2018_processed.csv")
+
+EPAair_NC <- rbind(EPAair_O2_NC2019_processed, EPAair_O2_NC2018_processed, EPAair_PM25_NC2019_processed, EPAair_PM25_NC2018_processed)
 
 #8
 
