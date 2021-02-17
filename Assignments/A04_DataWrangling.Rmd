@@ -26,10 +26,12 @@ The completed exercise is due on Tuesday, Feb 16 @ 11:59pm.
 ```{r, message = FALSE}
 #1
 getwd() 
-setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
+# Commented out for purposes of knitting the file
+#setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
 
-install.packages(tidyverse)
-install.packages(lubridate)
+# Commented out for purposes of knitting the file
+#install.packages(tidyverse)
+#install.packages(lubridate)
 library(tidyverse)
 library(lubridate)
 
