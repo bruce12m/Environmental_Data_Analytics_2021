@@ -25,40 +25,50 @@ The completed exercise is due on Tuesday, Feb 16 @ 11:59pm.
 
 ```{r, message = FALSE}
 #1
-getwd()
+getwd() 
 setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
 
 install.packages(tidyverse)
 install.packages(lubridate)
-
 library(tidyverse)
 library(lubridate)
 
-#The ideal format for calling these datafiles is a relative path using the format EPAair_O3_NC_2019 <- read.csv("./Data/Raw/EPAair_O3_NC2019_raw.csv", stringsAsFactors = TRUE) however, this method has thrown errors for me on Assignment 3 and also on this assignment. Therefore, I hard-coded the path, though this isn't ideal. 
-EPAair_O3_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2019_raw.csv")
-EPAair_O3_NC_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2018_raw.csv")
-EPAair_PM25_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2019_raw.csv")
-EPAair_PM25_NC_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2018_raw.csv")
+#The ideal format for calling these datafiles is a relative path using the format
+#EPAair_O3_NC_2019 <- read.csv("./Data/Raw/EPAair_O3_NC2019_raw.csv", stringsAsFactors = TRUE)
+#however, this method has thrown errors for me on Assignment 3 and also on this assignment.
+#Therefore, I coded the enture path even though this is less resilient and less prefered. 
+EPAair_O3_NC_2019 <- 
+  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2019_raw.csv")
+EPAair_O3_NC_2018 <- 
+  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2018_raw.csv")
+EPAair_PM25_NC_2019 <- 
+  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2019_raw.csv")
+EPAair_PM25_NC_2018 <- 
+  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2018_raw.csv")
 
 #2
+#Exploring the Ozone 2019 dataset 
 colnames(EPAair_O3_NC_2019)
 head(EPAair_O3_NC_2019)
 summary(EPAair_O3_NC_2019)
 str(EPAair_O3_NC_2019)
 dim(EPAair_O3_NC_2019)
 
+#Exploring the Ozone 2018 dataset 
 colnames(EPAair_O3_NC_2018)
 head(EPAair_O3_NC_2018)
 summary(EPAair_O3_NC_2018)
 str(EPAair_O3_NC_2018)
 dim(EPAair_O3_NC_2018)
 
+#Exploring the PM25 2019 dataset 
 colnames(EPAair_PM25_NC_2019)
 head(EPAair_PM25_NC_2019)
 summary(EPAair_PM25_NC_2019)
 str(EPAair_PM25_NC_2019)
 dim(EPAair_PM25_NC_2019)
 
+#Exploring the PM25 2018 dataset 
 colnames(EPAair_PM25_NC_2018)
 head(EPAair_PM25_NC_2018)
 summary(EPAair_PM25_NC_2018)
@@ -74,7 +84,8 @@ dim(EPAair_PM25_NC_2018)
 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
 
 ```{r}
-#3 I am assuming that by saying "Change date to date" you mean that you want us to parse the string turned factor into a traditional date object 
+#3 I am assuming that by saying "Change date to date," 
+#you want us to parse the string turned factor into a traditional date object 
 EPAair_O3_NC_2019$Date <- as.Date(EPAair_O3_NC_2019$Date, format = "%m/%d/%Y")
 EPAair_O3_NC_2018$Date <- as.Date(EPAair_O3_NC_2018$Date, format = "%m/%d/%Y")
 EPAair_PM25_NC_2019$Date <- as.Date(EPAair_PM25_NC_2019$Date, format = "%m/%d/%Y")
@@ -120,39 +131,49 @@ write.csv(EPAair_PM25_NC_2018_selected,"C:/Users/mmb88/Desktop/Environmental_Dat
 
 ```{r}
 #7
+# I am combining the four datasets with identical column names
 EPAair_NC <- rbind(EPAair_O3_NC_2019_selected, 
                    EPAair_O3_NC_2018_selected, 
                    EPAair_PM25_NC_2019_selected, 
                    EPAair_PM25_NC_2018_selected)
 
 #8
+# I am assuming that you want us to use the intersect function to find the sites
+# the four data frames have in common, as opposed to filtering based on the list 
+# you provided, though either method would work.
 EPAair_NC_piped <-
   EPAair_NC %>%
+  # Finding the sites the four dataframes have in common using intersect
   filter(Site.Name %in% c(intersect(
     intersect(EPAair_O3_NC_2019_selected$Site.Name,
               EPAair_O3_NC_2018_selected$Site.Name),
     intersect(EPAair_PM25_NC_2019_selected$Site.Name,
               EPAair_PM25_NC_2018_selected$Site.Name))) & Site.Name != "") %>%
+  # Split-Apply-Combine 
   group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>% 
   summarise(mean.AQI = mean(DAILY_AQI_VALUE), 
             mean.lat = mean(SITE_LATITUDE), 
             mean.long = mean(SITE_LONGITUDE), .groups = "keep") %>%
+  # Adding the Month and Year columns 
   mutate(Month = month(Date), Year = year(Date)) 
 
+# Throwing this into a csv because I worked really hard and was worried I'd mess it up
 write.csv(EPAair_NC_piped, row.names = FALSE, 
           file ="C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_NC_piped.csv")
 
 #9 
+# Pivoting the dataframe 
 EPAair_NC_piped_spread <- 
   EPAair_NC_piped %>% 
   pivot_wider(id_cols = c(Date, Month, Year, Site.Name, COUNTY, mean.lat, mean.long),
                 names_from = AQS_PARAMETER_DESC, values_from = mean.AQI)
 
-#10 8976 X 9 
+#10 
 dim(EPAair_NC_piped_spread)
 
-#11 Save your processed dataset with the following file name: "EPAair_O3_PM25_NC1718_Processed.csv"
-write.csv(EPAair_NC_piped_spread, row.names = FALSE, file ="C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_O3_PM25_NC1718_Processed.csv")
+#11 
+write.csv(EPAair_NC_piped_spread, row.names = FALSE, 
+          file ="C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_O3_PM25_NC1718_Processed.csv")
 
 ```
 
@@ -163,6 +184,7 @@ write.csv(EPAair_NC_piped_spread, row.names = FALSE, file ="C:/Users/mmb88/Deskt
 
 ```{r}
 #12a
+# Split-Apply-Combine in a pipe again 
 EPAair_NC_piped_processed <- 
   EPAair_NC_piped_spread %>%
   group_by(Site.Name, Month, Year) %>%
@@ -170,6 +192,7 @@ EPAair_NC_piped_processed <-
             mean.AQI.Ozone = mean(Ozone))
 
 #12b
+# Using a separate pipe for this drop_na approach, though I could have done it in the 12a pipe
 EPAair_NC_piped_processed_clean <-
   EPAair_NC_piped_processed %>%
   drop_na(c(Month, Year))
@@ -181,4 +204,4 @@ dim(EPAair_NC_piped_processed_clean)
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: na.omit is general; removes rows with NA values in ANY column, even if you try to specify a particular column. Meanwhile, drop_na is targeted; it allows users to specify the column where it should search and then drops rows where the NAs are present in that specified column. In our instance, running the na.omit function returns a dataframe with dimensions 101 by 5, meaning that, as predicted, it removed a lot more rows. 
+> Answer: na.omit is general; it removes rows with NA values in ANY column, even if you try to specify a particular column. Meanwhile, drop_na is targeted; it allows users to specify the column where it should search and then drops rows where the NAs are present in that specified column. In our case, running the na.omit function returns a dataframe with dimensions 101 by 5, meaning that, as predicted, it removed a lot more rows because it also tosses rows with NAs in the Mean.AQI.PM2.5 and Mean.AQI.Ozone columns. 
