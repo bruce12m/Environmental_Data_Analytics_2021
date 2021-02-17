@@ -37,10 +37,10 @@ library(lubridate)
 #library(plyr)
 
 #The ideal format for calling these datafiles is a relative path using the format EPAair_O3_NC_2019 <- read.csv("./Data/Raw/EPAair_O3_NC2019_raw.csv", stringsAsFactors = TRUE) however, this method has thrown errors for me on Assignment 3 and also on this assignment. Therefore, I hard-coded the path, though this isn't ideal. 
-EPAair_O3_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2019_raw.csv", stringsAsFactors = TRUE)
-EPAair_O3_NC_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2018_raw.csv", stringsAsFactors = TRUE)
-EPAair_PM25_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2019_raw.csv", stringsAsFactors = TRUE)
-EPAair_PM25_NC_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2018_raw.csv", stringsAsFactors = TRUE)
+EPAair_O3_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2019_raw.csv")
+EPAair_O3_NC_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2018_raw.csv")
+EPAair_PM25_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2019_raw.csv")
+EPAair_PM25_NC_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_PM25_NC2018_raw.csv")
 
 #2
 colnames(EPAair_O3_NC_2019)
@@ -83,14 +83,22 @@ EPAair_PM25_NC_2019$Date <- as.Date(EPAair_PM25_NC_2019$Date, format = "%m/%d/%Y
 EPAair_PM25_NC_2018$Date <- as.Date(EPAair_PM25_NC_2018$Date, format = "%m/%d/%Y")
 
 #4 
-EPAair_O3_NC_2019_selected <- select(EPAair_O3_NC_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
-EPAair_O3_NC_2018_selected <- select(EPAair_O3_NC_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
-EPAair_PM25_NC_2019_selected <- select(EPAair_PM25_NC_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
-EPAair_PM25_NC_2018_selected <- select(EPAair_PM25_NC_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+EPAair_O3_NC_2019_selected <- 
+  select(EPAair_O3_NC_2019, Date, DAILY_AQI_VALUE, Site.Name, 
+         AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+EPAair_O3_NC_2018_selected <- 
+  select(EPAair_O3_NC_2018, Date, DAILY_AQI_VALUE, Site.Name, 
+         AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+EPAair_PM25_NC_2019_selected <- 
+  select(EPAair_PM25_NC_2019, Date, DAILY_AQI_VALUE, Site.Name, 
+         AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+EPAair_PM25_NC_2018_selected <- 
+  select(EPAair_PM25_NC_2018, Date, DAILY_AQI_VALUE, Site.Name, 
+         AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
 #5
 EPAair_PM25_NC_2019_selected$AQS_PARAMETER_DESC <- "PM2.5"
-EPAair_PM25_NC_2019_selected$AQS_PARAMETER_DESC <- "PM2.5"
+EPAair_PM25_NC_2018_selected$AQS_PARAMETER_DESC <- "PM2.5"
 
 #6
 write.csv(EPAair_O3_NC_2019_selected,"C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_O3_NC2019_processed.csv", row.names = FALSE)
@@ -114,43 +122,41 @@ write.csv(EPAair_PM25_NC_2018_selected,"C:/Users/mmb88/Desktop/Environmental_Dat
 
 ```{r}
 #7
-EPAair_O3_NC2019_processed <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_O3_NC2019_processed.csv")
-EPAair_O3_NC2018_processed <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_O3_NC2018_processed.csv")
-EPAair_PM25_NC2019_processed <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_PM25_NC2019_processed.csv")
-EPAair_PM25_NC2018_processed <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_PM25_NC2018_processed.csv")
-
-EPAair_NC <- rbind(EPAair_O3_NC2019_processed, EPAair_O3_NC2018_processed, EPAair_PM25_NC2019_processed, EPAair_PM25_NC2018_processed)
+EPAair_NC <- rbind(EPAair_O3_NC_2019_selected, 
+                   EPAair_O3_NC_2018_selected, 
+                   EPAair_PM25_NC_2019_selected, 
+                   EPAair_PM25_NC_2018_selected)
 
 #8
-EPAair_NC_piped <- 
+EPAair_NC_piped <-
   EPAair_NC %>%
-  filter(Site.Name == "Linville Falls" | Site.Name == "Durham Armory" | Site.Name == "Leggett" | Site.Name == "Hattie Avenue" | Site.Name == "Clemmons Middle" | Site.Name == "Mendenhall School" | Site.Name == "Frying Pan Mountain" | Site.Name == "West Johnston Co." | Site.Name == "Garinger High School" | Site.Name == "Castle Hayne" | Site.Name == "Pitt Agri. Center" | Site.Name == "Bryson City" | Site.Name == "Millbrook School") %>%
-  group_by(Site.Name, Date , AQS_PARAMETER_DESC, COUNTY) %>%
-  summarise()
-  
+  filter(Site.Name %in% c(intersect(
+    intersect(EPAair_O3_NC_2019_selected$Site.Name,
+              EPAair_O3_NC_2018_selected$Site.Name),
+    intersect(EPAair_PM25_NC_2019_selected$Site.Name,
+              EPAair_PM25_NC_2018_selected$Site.Name))) & Site.Name != "") %>%
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>% 
+  summarize(mean.AQI = mean(DAILY_AQI_VALUE), 
+            mean.lat = mean(SITE_LATITUDE), 
+            mean.long = mean(SITE_LONGITUDE), .groups = "keep") %>%
+  mutate(Month = month(Date), Year = year(Date)) 
+
+write.csv(EPAair_NC_piped, row.names = FALSE, 
+          file ="C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_NC_piped.csv")
+
+#9 
+EPAair_NC_piped_spread <- 
+  EPAair_NC_piped %>% 
+  pivot_wider(id_cols = c(Date, Month, Year, Site.Name:mean.lat),
+                names_from = AQS_PARAMETER_DESC, values_from = mean.AQI)
+
+#10 8976 X 9 
+dim(EPAair_NC_piped_spread)
+
+#11 Save your processed dataset with the following file name: "EPAair_O3_PM25_NC1718_Processed.csv"
+write.csv(EPAair_NC_piped_spread, row.names = FALSE, file ="C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/EPAair_O3_PM25_NC1718_Processed.csv")
+
 ```
-
-  select(plotID:trapID, collectDate, functionalGroup:qaDryMass, subplotID:geodeticDatum)
-  filter(!is.na(temperature_C) & !is.na(tn_ug) & !is.na(tp_ug)) %>%
-  summarise(meantemp = mean(temperature_C), 
-            sdtemp = sd(temperature_C), 
-            meanTN = mean(tn_ug), 
-            sdTN = sd(tn_ug), 
-            meanTP = mean(tp_ug), 
-            sdTP = sd(tp_ug))
-
-* Some sites have multiple measurements per day. Use the split-apply-combine strategy to generate daily means: group by date, site, aqs parameter, and county. Take the mean of the AQI value, latitude, and longitude.
-* Add columns for "Month" and "Year" by parsing your "Date" column (hint: `lubridate` package)
-* Hint: the dimensions of this dataset should be 14,752 x 9.
-
-#9
-
-#10
-
-#11
-
-```
-
 
 ## Generate summary tables
 12. Use the split-apply-combine strategy to generate a summary data frame. Data should be grouped by site, month, and year. Generate the mean AQI values for ozone and PM2.5 for each group. Then, add a pipe to remove instances where a month and year are not available (use the function `drop_na` in your pipe). 
@@ -159,8 +165,19 @@ EPAair_NC_piped <-
 
 ```{r}
 #12a
+EPAair_NC_piped_spread <- 
+  group_by(Site.Name, Month, Year) %>%
+  summarise(mean.AQI.PM2.5 = mean(PM2.5), 
+            mean.AQI.Ozone = mean(Ozone)) %>%
+  mutate(month = month(Date)) %>%
+  mutate(year = year(Date)) 
 
 #12b
+NTL.nutrient.data.PeterPaul <- 
+  NTL.nutrient.data.PeterPaul %>% #
+  mutate(month = month(sampledate)) %>% #
+  select(lakeid:daynum, month, sampledate:comments) %>% # 
+  drop_na(depth)
 
 #13
 #dim(EPAair_NC_Summary)
