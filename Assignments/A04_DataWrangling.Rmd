@@ -30,11 +30,9 @@ setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
 
 install.packages(tidyverse)
 install.packages(lubridate)
-#install.packages(plyr)
 
 library(tidyverse)
 library(lubridate)
-#library(plyr)
 
 #The ideal format for calling these datafiles is a relative path using the format EPAair_O3_NC_2019 <- read.csv("./Data/Raw/EPAair_O3_NC2019_raw.csv", stringsAsFactors = TRUE) however, this method has thrown errors for me on Assignment 3 and also on this assignment. Therefore, I hard-coded the path, though this isn't ideal. 
 EPAair_O3_NC_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/EPAair_O3_NC2019_raw.csv")
@@ -136,7 +134,7 @@ EPAair_NC_piped <-
     intersect(EPAair_PM25_NC_2019_selected$Site.Name,
               EPAair_PM25_NC_2018_selected$Site.Name))) & Site.Name != "") %>%
   group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>% 
-  summarize(mean.AQI = mean(DAILY_AQI_VALUE), 
+  summarise(mean.AQI = mean(DAILY_AQI_VALUE), 
             mean.lat = mean(SITE_LATITUDE), 
             mean.long = mean(SITE_LONGITUDE), .groups = "keep") %>%
   mutate(Month = month(Date), Year = year(Date)) 
@@ -147,7 +145,7 @@ write.csv(EPAair_NC_piped, row.names = FALSE,
 #9 
 EPAair_NC_piped_spread <- 
   EPAair_NC_piped %>% 
-  pivot_wider(id_cols = c(Date, Month, Year, Site.Name:mean.lat),
+  pivot_wider(id_cols = c(Date, Month, Year, Site.Name, COUNTY, mean.lat, mean.long),
                 names_from = AQS_PARAMETER_DESC, values_from = mean.AQI)
 
 #10 8976 X 9 
@@ -165,25 +163,22 @@ write.csv(EPAair_NC_piped_spread, row.names = FALSE, file ="C:/Users/mmb88/Deskt
 
 ```{r}
 #12a
-EPAair_NC_piped_spread <- 
+EPAair_NC_piped_processed <- 
+  EPAair_NC_piped_spread %>%
   group_by(Site.Name, Month, Year) %>%
   summarise(mean.AQI.PM2.5 = mean(PM2.5), 
-            mean.AQI.Ozone = mean(Ozone)) %>%
-  mutate(month = month(Date)) %>%
-  mutate(year = year(Date)) 
+            mean.AQI.Ozone = mean(Ozone))
 
 #12b
-NTL.nutrient.data.PeterPaul <- 
-  NTL.nutrient.data.PeterPaul %>% #
-  mutate(month = month(sampledate)) %>% #
-  select(lakeid:daynum, month, sampledate:comments) %>% # 
-  drop_na(depth)
+EPAair_NC_piped_processed_clean <-
+  EPAair_NC_piped_processed %>%
+  drop_na(c(Month, Year))
 
 #13
-#dim(EPAair_NC_Summary)
+dim(EPAair_NC_piped_processed_clean)
 
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: na.omit is general; removes rows with NA values in ANY column, even if you try to specify a particular column. Meanwhile, drop_na is targeted; it allows users to specify the column where it should search and then drops rows where the NAs are present in that specified column. In our instance, running the na.omit function returns a dataframe with dimensions 101 by 5, meaning that, as predicted, it removed a lot more rows. 
