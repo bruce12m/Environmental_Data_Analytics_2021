@@ -36,9 +36,9 @@ the processed data file for the Niwot Ridge litter dataset.
 #1 
 
 getwd()
-install.packages(tidyverse)
-install.packages(ggplot2)
-install.packages(cowplot)
+install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("cowplot")
 library(tidyverse)
 library(ggplot2)
 library(cowplot)

@@ -19,6 +19,10 @@ editor_options:
 The expression function can be used when you want to add mathematical symbols and subscripts mixed with regular letter to labels. 
 
 ```{r}
+install.packages("viridis")
+library(tidyverse)
+library(viridis)
+
 Plot_text <-
 ggplot(data=data.frame(x=0,y=0))+
   geom_point(aes(x=x,y=y)) +
@@ -56,18 +60,26 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
 
 # 1. 
-# Plot surface temperatures by day of  year. 
+# Plot surface temperatures by day of year. 
 # Color your points by year, and facet by lake in two rows.
 # Change the ylab name
-
+# This is the old-school way of subsetting to just the 0 depth but you can also use filter
+plot1 <- ggplot(PeterPaul.chem.nutrients[PeterPaul.chem.nutrients$depth == 0,],
+                aes(x = daynum, 
+                    y = temperature_C, 
+                    color = year4)) + 
+  geom_point(alpha = .5) + # alpha adjusts point transparency 
+  facet_wrap(vars(lakename), nrow = 2) + 
+  ylab("Temp (C)")
+print(plot1)
 
 #2. 
 # Plot temperature by date. Color your points by depth.
 # Change the size of your point to 0.5
 # Change the color palette to magma and play with direction (+- 1), which one makes more sense?
 # Change x axis to include marker/labels every 5 years
-
-
+plot2 <- ggplot(PeterPaul.chem.nutrients, aes(x = sampledate, y = temperature_C, color = depth)) + geom_point(size = .5, alpha = .5) + scale_color_viridis(option = "magma", direction = -1)
+print(plot2)
 
 
 ```
@@ -81,9 +93,13 @@ Exercise: Plot relationships between air quality measurements
 # Plot AQI values for ozone by PM2.5, colored by latitude 
 # Make the points 50 % transparent
 # Add a line of best fit for the linear regression of these variables.
-
-
-
+plot3 <- ggplot(EPAair,
+                aes(x = Ozone, 
+                    y = PM2.5, 
+                    color = SITE_LATITUDE)) +
+  geom_point(alpha = .5) + # alpha adjusts point transparency
+  geom_smooth(method = lm, se = FALSE, color = "orange") # does not go through origin 
+print(plot3)
 
 ```
 
