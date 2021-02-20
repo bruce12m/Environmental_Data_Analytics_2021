@@ -20,8 +20,6 @@ This exercise accompanies the lessons in Environmental Data Analytics on Data Vi
 
 The completed exercise is due on Tuesday, February 23 at 11:59 pm.
 
-
-
 ## Set up your session 
 1. Set up your session. Verify your working directory and load the tidyverse 
 and cowplot packages. Upload the NTL-LTER processed data files for nutrients 
@@ -43,7 +41,15 @@ library(tidyverse)
 library(ggplot2)
 library(cowplot)
 
-#2 
+NTL_LTER_nutrients_processed <- 
+  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+NTL_LTER_gathered_processed <- 
+  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv", stringsAsFactors = TRUE)
+
+#2
+
+NTL_LTER_nutrients_processed$sampledate <- as.Date(NTL_LTER_nutrients_processed$sampledate, format = "%Y-%m-%d")
+NTL_LTER_gathered_processed$sampledate <- as.Date(NTL_LTER_gathered_processed$sampledate, format = "%Y-%m-%d")
 
 ```
 ## Define your theme
