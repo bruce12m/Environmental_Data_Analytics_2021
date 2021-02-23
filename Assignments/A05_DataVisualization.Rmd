@@ -85,20 +85,62 @@ print(NTL_LTER_Scatter)
 5. [NTL-LTER] Make three separate boxplots of (a) temperature, (b) TP, and (c) TN, with month as the x axis and lake as a color aesthetic. Then, create a cowplot that combines the three graphs. Make sure that only one legend is present and that graph axes are aligned.
 
 ```{r}
+# Temperature Boxplot 
 NTL_LTER_Box_Temp <- ggplot(NTL_LTER_nutrients_processed, 
                             aes(x = as.factor(month), 
                                 y = temperature_C)) + 
   geom_boxplot(aes(color = lakename)) + 
+  #facet_wrap(vars(lakename), nrow = 2)
   ylab("Temperature (C)") + 
-  xlab("Month") + 
-  scale_x_discrete(month)
+  xlab("Month")
 print(NTL_LTER_Box_Temp)
-  
+
+# TP Boxplot 
+NTL_LTER_Box_TP <- ggplot(NTL_LTER_nutrients_processed, 
+                            aes(x = as.factor(month), 
+                                y = tp_ug)) + 
+  geom_boxplot(aes(color = lakename)) + 
+  ylab("TP") + #what does TP stand for?
+  xlab("Month")
+print(NTL_LTER_Box_TP)
+
+# TN Boxplot 
+NTL_LTER_Box_TN <- ggplot(NTL_LTER_nutrients_processed, 
+                            aes(x = as.factor(month), 
+                                y = tn_ug)) + 
+  geom_boxplot(aes(color = lakename)) + 
+  ylab("TN") + #what does TN stand for? 
+  xlab("Month")
+print(NTL_LTER_Box_TN)
+
+# TP Boxplot without legend (for second part of the question)
+NTL_LTER_Box_TP_NL <- ggplot(NTL_LTER_nutrients_processed, 
+                            aes(x = as.factor(month), 
+                                y = tp_ug)) + 
+  geom_boxplot(aes(color = lakename)) + 
+  theme(legend.position = "none") + # adding this for part below
+  ylab("TP") + #what does TP stand for?
+  xlab("Month")
+
+# TN Boxplot without legend (for second part of the question)
+NTL_LTER_Box_TN_NL <- ggplot(NTL_LTER_nutrients_processed, 
+                            aes(x = as.factor(month), 
+                                y = tn_ug)) + 
+  geom_boxplot(aes(color = lakename)) + 
+  theme(legend.position = "none") + # adding this for part below
+  ylab("TN") + #what does TN stand for? 
+  xlab("Month")
+
+# cowplot combining TN, TP, and Temp & only 1 legend 
+plot_grid(NTL_LTER_Box_Temp, NTL_LTER_Box_TP_NL, NTL_LTER_Box_TN_NL,
+          nrow = 3, 
+          align = 'v',
+          rel_heights = c(1, 1, 1))
 ```
 
 Question: What do you observe about the variables of interest over seasons and between lakes? 
 
-> Answer: 
+> Answer: On the whole, the variables tend to be higher in the summer months and lower in the late spring & early fall. The TP and TN variables tend to be more elevated at Peter Lake than at Paul Lake, though there are less clear temperature trends between Peter and Paul Lakes. 
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the "Needles" functional group. Plot the dry mass of needle litter by date and separate by NLCD class with a color aesthetic. (no need to adjust the name of each land use)
 
