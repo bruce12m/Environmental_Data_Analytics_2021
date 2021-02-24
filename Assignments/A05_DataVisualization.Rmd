@@ -34,39 +34,49 @@ the processed data file for the Niwot Ridge litter dataset.
 #1 
 
 getwd()
-install.packages("tidyverse")
-install.packages("ggplot2")
-install.packages("cowplot")
+
+#install.packages("tidyverse")
+#install.packages("ggplot2")
+#install.packages("cowplot")
+
 library(tidyverse)
 library(ggplot2)
 library(cowplot)
+library(scales)
+
+# Again, I'm providing full paths because 
+# RStudio on my virtual machine won't process the relative paths
+# I recognize that relative paths are preferable
 
 NTL_LTER_nutrients_processed <- 
   read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+
 NTL_LTER_gathered_processed <- 
   read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv", stringsAsFactors = TRUE)
+
 NiwotRidge_Litter <- 
   read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
 
 #2
 
-# Verified in Environment tab that the sampledate column is read in as factor
+# Verified after in Environment tab that sampledate column is read as factor
 NTL_LTER_nutrients_processed$sampledate <-
   as.Date(NTL_LTER_nutrients_processed$sampledate, format = "%Y-%m-%d")
 NTL_LTER_gathered_processed$sampledate <-
   as.Date(NTL_LTER_gathered_processed$sampledate, format = "%Y-%m-%d")
 NiwotRidge_Litter$collectDate <- 
   as.Date(NiwotRidge_Litter$collectDate, format = "%Y-%m-%d")
-
 ```
+
 ## Define your theme
 3. Build a theme and set it as your default theme.
 
 ```{r}
+# I could add more to this theme but will leave it more simple for now 
 mytheme <- theme_classic(base_size = 14) +
   theme(axis.text = element_text(color = "black"), 
-        legend.position = "top") #alternative: legend.position + legend.justification
-
+        legend.position = "top", 
+        panel.grid.major = element_line(colour = "gray")) 
 theme_set(mytheme)
 ```
 
@@ -75,73 +85,94 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 
 4. [NTL-LTER] Plot total phosphorus (`tp_ug`) by phosphate (`po4`), with separate aesthetics for Peter and Paul lakes. Add a line of best fit and color it black. Adjust your axes to hide extreme values.
 
-```{r}
-NTL_LTER_Scatter <- ggplot(NTL_LTER_nutrients_processed[NTL_LTER_nutrients_processed$po4 <=50,], 
+```{r, fig.height=6, fig.width=6}
+NTL_LTER_Scatter <- ggplot(NTL_LTER_nutrients_processed, 
                          aes(x = tp_ug, 
                              y = po4, 
                              color = lakename)) + 
   geom_point(size = .9, alpha = .5) + 
+  scale_color_manual(values = c("blue", "firebrick")) + 
+  xlim(0, 150) + ylim(0, 50) +
   geom_smooth(method = lm, se = FALSE, color = "black") +
-  ylab("Phosphate") + 
-  xlab("Phosphorus") +
+  labs(title = "Phosphorus & Phosphate Levels, Peter & Paul Lakes",
+       y = "Phosphate",
+       x = "Phosphorus") +
   mytheme
 print(NTL_LTER_Scatter)
 ```
 
 5. [NTL-LTER] Make three separate boxplots of (a) temperature, (b) TP, and (c) TN, with month as the x axis and lake as a color aesthetic. Then, create a cowplot that combines the three graphs. Make sure that only one legend is present and that graph axes are aligned.
 
-```{r}
-# Temperature Boxplot 
+```{r, fig.height=4, fig.width=6}
+# (a) Temperature Boxplot 
 NTL_LTER_Box_Temp <- ggplot(NTL_LTER_nutrients_processed, 
                             aes(x = as.factor(month), 
                                 y = temperature_C)) + 
   geom_boxplot(aes(color = lakename)) + 
-  #facet_wrap(vars(lakename), nrow = 2)
-  ylab("Temperature (C)") + 
-  xlab("Month")
+  scale_color_manual(values = c("royalblue2", "indianred2")) +
+  labs(title = "Temperature Over Time",
+       y = "Temperature (C)",
+       x = "Month")
 print(NTL_LTER_Box_Temp)
 
-# TP Boxplot 
+# (b) TP Boxplot 
 NTL_LTER_Box_TP <- ggplot(NTL_LTER_nutrients_processed, 
                             aes(x = as.factor(month), 
                                 y = tp_ug)) + 
   geom_boxplot(aes(color = lakename)) + 
-  ylab("TP") + #what does TP stand for?
-  xlab("Month")
+  scale_color_manual(values = c("royalblue2", "indianred2")) +
+  labs(title = "Total P Over Time",
+       y = "Total P",
+       x = "Month")
 print(NTL_LTER_Box_TP)
 
-# TN Boxplot 
+# (c) TN Boxplot 
 NTL_LTER_Box_TN <- ggplot(NTL_LTER_nutrients_processed, 
                             aes(x = as.factor(month), 
                                 y = tn_ug)) + 
   geom_boxplot(aes(color = lakename)) + 
-  ylab("TN") + #what does TN stand for? 
-  xlab("Month")
+  scale_color_manual(values = c("royalblue2", "indianred2")) +
+  labs(title = "Total N Over Time",
+       y = "Total N",
+       x = "Month")
 print(NTL_LTER_Box_TN)
 
-# TP Boxplot without legend (for second part of the question)
+# Temp boxplot without x label (for cowplot cleaning) 
+NTL_LTER_Box_Temp <- ggplot(NTL_LTER_nutrients_processed, 
+                            aes(x = as.factor(month), 
+                                y = temperature_C)) + 
+  geom_boxplot(aes(color = lakename)) + 
+  scale_color_manual(values = c("royalblue2", "indianred2")) +
+  ylab("Temperature (C)") + 
+  xlab(" ") # adding this for part below
+
+# TP Boxplot without legend (for cowplot cleaning)
 NTL_LTER_Box_TP_NL <- ggplot(NTL_LTER_nutrients_processed, 
                             aes(x = as.factor(month), 
                                 y = tp_ug)) + 
   geom_boxplot(aes(color = lakename)) + 
+  scale_color_manual(values = c("royalblue2", "indianred2")) +
   theme(legend.position = "none") + # adding this for part below
-  ylab("TP") + #what does TP stand for?
-  xlab("Month")
+  ylab("Total P") + 
+  xlab(" ") # adding this for part below
 
-# TN Boxplot without legend (for second part of the question)
+# TN Boxplot without legend (for cowplot cleaning)
 NTL_LTER_Box_TN_NL <- ggplot(NTL_LTER_nutrients_processed, 
                             aes(x = as.factor(month), 
                                 y = tn_ug)) + 
   geom_boxplot(aes(color = lakename)) + 
+  scale_color_manual(values = c("royalblue2", "indianred2")) +
   theme(legend.position = "none") + # adding this for part below
-  ylab("TN") + #what does TN stand for? 
+  ylab("Total N") + 
   xlab("Month")
+```
 
+```{r, fig.height=8, fig.width=6}
 # cowplot combining TN, TP, and Temp & only 1 legend 
 plot_grid(NTL_LTER_Box_Temp, NTL_LTER_Box_TP_NL, NTL_LTER_Box_TN_NL,
-          nrow = 3, 
-          align = 'v',
-          rel_heights = c(1, 1, 1))
+          nrow = 3, # 3 rows 
+          align = 'v', # vetically aligned 
+          rel_heights = c(1.3, 1, 1))
 ```
 
 Question: What do you observe about the variables of interest over seasons and between lakes? 
@@ -150,26 +181,39 @@ Question: What do you observe about the variables of interest over seasons and b
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the "Needles" functional group. Plot the dry mass of needle litter by date and separate by NLCD class with a color aesthetic. (no need to adjust the name of each land use)
 
-```{r}
+```{r, fig.height=6, fig.width=6}
 NiwotRidge_Litter_color <- ggplot(subset(NiwotRidge_Litter, functionalGroup %in% c("Needles")),
                             aes(x = collectDate, 
                                 y = dryMass,
                                 color = nlcdClass)) +
-  geom_point(alpha = .5)
+  geom_point() +
+  scale_color_manual(values = c("royalblue2", "indianred2", "gold")) +
+  labs(title = "Dry Mass of NLCD Types Over Time",
+       y = "Dry Mass",
+       x = "Collection Date") + 
+  scale_x_date(breaks = date_breaks("months"), 
+               labels = date_format("%m/%Y")) + 
+  theme(axis.text.x = element_text(angle = 90))
 print(NiwotRidge_Litter_color)
-
 ```
 
 7. [Niwot Ridge] Now, plot the same plot but with NLCD classes separated into three facets rather than separated by color. 
 
-```{r}
-NiwotRidge_Litter.faceted <- ggplot(subset(NiwotRidge_Litter, functionalGroup %in% c("Needles")), 
-                            aes(x = collectDate, 
-                                y = dryMass)) + 
+```{r, fig.height=6, fig.width=6}
+NiwotRidge_Litter.faceted <- ggplot(subset(NiwotRidge_Litter, 
+                                           functionalGroup %in% c("Needles")),
+                                    aes(x = collectDate,
+                                        y = dryMass)) +
   geom_point() +
-  facet_wrap(vars(nlcdClass))
+  labs(title = "Dry Mass of NLCD Types Over Time",
+       y = "Dry Mass",
+       x = "Collection Date") + 
+  scale_x_date(breaks = date_breaks("months"), 
+               labels = date_format("%m/%Y")) + 
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_wrap(vars(nlcdClass), nrow = 3)
 print(NiwotRidge_Litter.faceted)
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer:
+> Answer: I think facet wrap does a better job of conveying the information; it's easier to compare the dry masses, both across different NLCD Classes and also across time. For instance, it's easier to tell that the dry masses were lower for all three NLDC types in 2019. It's also easier to tell that there's a little more spread in Evergreen Forest needle dry masses than for Shrub Scrub needle dry masses. Alternatively, this information is a bit more masked/cluttered in the chart where NLCD Class is only rendered using the color aesthetic rather than through facet wrap. As a result, it's harder to discern some of these patterns in the color aesthetic chart (#6). 
