@@ -16,7 +16,7 @@ editor_options:
 ```{r, message = FALSE}
 getwd()
 library(tidyverse)
-#install.packages("agricolae")
+install.packages("agricolae")
 library(agricolae)   #you may need to install/update package "htmltools" before installing and loading agricolae
 
 Litter <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)

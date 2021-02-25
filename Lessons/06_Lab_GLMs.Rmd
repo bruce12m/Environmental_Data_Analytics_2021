@@ -156,6 +156,10 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 
 ```{r}
 #Exercise 2:
+ggplot(EPAair, aes(x = Ozone, fill=as.fact(Year))) +
+  geom_density(alpha=0.5) +
+  labs(fill="Year") + 
+  scale_fill_brewer(type='qual',palette='Set1')
 
 
 ```
@@ -169,11 +173,15 @@ For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
 ```{r}
 
 #Exercise 3: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
-
+# r squared is the portion of variability in our dependent variable explained by our independent variable 
+the_model <- lm(data=EPAair, PM2.5 ~ Ozone)
+summary(the_model)
 
 
 #Exercise 4: Build a scatterplot. Add a line and standard error for the linear regression. Add the regression equation to the plot
-
+ggplot(data=EPAair, aes(x = Ozone, y = PM2.5)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
 
 
 ```
@@ -186,16 +194,20 @@ What other variables can we add to improve model?
 ```{r}
 
 #Exercise 5: Build correlation plots and identify more possible explanatory variables to add to the regression.
-
-
+install.packages("corrplot")
+library(corrplot)
+EPA_Coor <- cor(EPAair %>% select(SITE_LATITUDE:PM2.5) %>% na.omit())
+corrplot(EPA_Coor, method="ellipse")
+corrplot.mixed(EPA_Coor, method="ellipse")
 
 
 #Exercise 6: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 5?
+Ozone.regression <- lm(data=EPAair, PM2.5 ~ Ozone + Month + Year + SITE_LONGITUDE + SITE_LATITUDE)
+step(Ozone.regression)
 
 
-
-
-#Exercise 7: Run another regression using the variables selected on Exercise 6. Compare r-squared value withthe one from Exercise 5. 
+#Exercise 7: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 5. 
+the_best_model <- lm(formula = PM2.5 ~ Ozone + Month + SITE_LONGITUDE + SITE_LATITUDE, data=EPAair)
 
 ```
 
