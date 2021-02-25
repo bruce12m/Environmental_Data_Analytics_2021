@@ -209,6 +209,8 @@ step(Ozone.regression)
 #Exercise 7: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 5. 
 the_best_model <- lm(formula = PM2.5 ~ Ozone + Month + SITE_LONGITUDE + SITE_LATITUDE, data=EPAair)
 
+summary(the_best_model)
+
 ```
 
 
