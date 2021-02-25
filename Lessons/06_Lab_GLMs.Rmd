@@ -67,22 +67,28 @@ Are Ozone levels below the threshold for "good" AQI index (0-50)?
 > Exercise 1: State the hypotheses for testing mean of AQI index.
 
 > Answer: 
+H0 (null): mu (average) >= 50 ppm of ozone 
+Ha (alternative): mu < 50 ppm of ozone
 
 
 ```{r}
 
-
+# Shapiro Wilk test can only run on 5000 records so we have to subset 
 summary(EPAair$Ozone)
 EPAair.subsample <- sample_n(EPAair, 5000)
 
 # Evaluate assumption of normal distribution
+# This p value is actually just telling us the likelihood that our data are normally distributed (we aren't yet testing OUR null hypothesis)
 shapiro.test((EPAair.subsample$Ozone))
 ggplot(EPAair, aes(x = Ozone)) +
   geom_histogram() 
 qqnorm(EPAair$Ozone); qqline(EPAair$Ozone)
+# not perfect normal distrubtion but we will proceed anyways
 
+# And here is the T Test! 
 O3.onesample <- t.test(EPAair$Ozone, mu = 50, alternative = "less")
 O3.onesample
+# mu and alternative in tandem tell the t test that our H0 is >= 50
 
 Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
   #geom_density(stat = "count", fill = "gray") +
@@ -90,11 +96,12 @@ Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
   geom_vline(xintercept = 50, color = "#238b45", lty = 2, size = 0.9) +
   scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
 print(Ozone.plot)
+# That expand/scale x continuous function gets rid of this gap between the graph and the axis
 ```
 
 Write a sentence or two about the results of this test. Include both the results of the test and an interpretation that puts the findings in context of the research question.
 
-> 
+> On average, ozone measured in NC is less than 50 ppm over x time period (how we substantiate this claim: t test, degrees of freedom = 6829, p value < 0.001)
 
 ### Two-sample t-test
 
