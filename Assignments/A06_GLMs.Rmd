@@ -1,6 +1,6 @@
 ---
 title: "Assignment 7: GLMs (Linear Regressios, ANOVA, & t-tests)"
-author: "Student Name"
+author: Molly Bruce
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -28,9 +28,33 @@ The completed exercise is due on Tuesday, March 2 at 1:00 pm.
 ```{r setup}
 #1
 
+getwd()
+
+library(agricolae)
+library(tidyverse)
+library(ggplot2)
+library(cowplot)
+library(scales)
+
+# Again, I'm providing full paths because 
+# RStudio on my virtual machine won't process the relative paths
+# I recognize that relative paths are preferable
+
+LakeChem_raw <- 
+  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", stringsAsFactors = TRUE) 
+
+# Verified after in Environment tab that sampledate column is read as factor
+LakeChem_raw$sampledate <- 
+  as.Date(LakeChem_raw$sampledate, format = "%m/%d/%y")
 
 #2
 
+# I could add more to this theme but will leave it more simple for now 
+mytheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top", 
+        panel.grid.major = element_line(colour = "gray")) 
+theme_set(mytheme)
 
 ```
 
@@ -39,9 +63,8 @@ Our first research question is: Does mean lake temperature recorded during July 
 
 3. State the null and alternative hypotheses for this question:
 > Answer:
-H0: 
-Ha: 
-
+H0: July mean lake temperature in any lake does not change with depth. 
+Ha: July mean lake temperature in all lakes changes with depth. 
 
 4.  Wrangle your NTL-LTER dataset with a pipe function so that the records meet the following criteria: 
  * Only dates in July. 
