@@ -184,7 +184,7 @@ LakeChem_scatter_lakes <- ggplot(LakeChem_piped,
   labs(title = "July Lake Temperature By Depth",
        y = "Temperature (C)",
        x = "Depth Below Surface (m)", 
-       legend = "Lake Name") + 
+       color = "Lake Name") + 
   theme(plot.title = element_text(hjust=0.5)) +
   scale_y_continuous(limits = c(0, 35), expand = c(0, 0)) 
 print(LakeChem_scatter_lakes)
@@ -194,17 +194,18 @@ print(LakeChem_scatter_lakes)
 15. Use the Tukey's HSD test to determine which lakes have different means.
 
 ```{r tukey.test}
-#15
+#15 TukeyHSD() computes Tukey Honest Significant Differences
 
-# TukeyHSD() computes Tukey Honest Significant Differences
 TukeyHSD(ANOVA)
+Tukey <- HSD.test(ANOVA, "lakename", group = TRUE)
+Tukey
 
 ```
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer:
+>Answer: Paul Lake. 
 
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
 
->Answer: 
+>Answer: Two-Sample T-Test 
