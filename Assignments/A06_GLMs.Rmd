@@ -35,6 +35,7 @@ library(tidyverse)
 library(ggplot2)
 library(cowplot)
 library(scales)
+library(lubridate)
 
 # Again, I'm providing full paths because 
 # RStudio on my virtual machine won't process the relative paths
@@ -52,7 +53,7 @@ LakeChem_raw$sampledate <-
 # I could add more to this theme but will leave it more simple for now 
 mytheme <- theme_classic(base_size = 14) +
   theme(axis.text = element_text(color = "black"), 
-        legend.position = "top", 
+        legend.position = "right", 
         panel.grid.major = element_line(colour = "gray")) 
 theme_set(mytheme)
 
@@ -76,37 +77,55 @@ Ha: July mean lake temperature in all lakes changes with depth.
 ```{r scatterplot}
 #4
 
+# I am making a month column so that I can filter by this in my pipe
+LakeChem_raw <- mutate(LakeChem_raw, month = month(sampledate)) 
+
+LakeChem_piped <- 
+  LakeChem_raw %>%
+  filter(month == 7) %>%
+  select(lakename, year4, daynum, depth, temperature_C) %>%
+  na.omit
 
 #5
 
+LakeChem_scatterTD <- ggplot(LakeChem_piped,
+                aes(x = depth, 
+                    y = temperature_C)) +
+  geom_point(size = .8, alpha = .5, color = "red") + 
+  geom_smooth(method = lm, se = FALSE, color = "black") +
+  labs(title = "July Lake Temperature By Depth",
+       y = "Temperature (C)",
+       x = "Depth Below Surface (m)") + 
+  theme(plot.title = element_text(hjust=0.5)) +
+  scale_y_continuous(limits = c(0, 35), expand = c(0, 0)) 
+print(LakeChem_scatterTD)
 
 ```
 
-
 6. Interpret the figure. What does it suggest with regards to the response of temperature to depth? Do the distribution of points suggest about anything about the linearity of this trend?
 
-> Answer: 
-
+> Answer: This scatter plot and corresponding line of best fit suggest that temperature tends to decrease with depth (an inverse relationship). However, given the long tail on the righthand side of the plot, it appears as though there's a lower "threshold" for temperature, even as depth continues to increase. Conceptually, this makes sense; deep portions of lakes do not freeze first so we wouldn't expect temperatures to continue to drop below 0 as depth increases. 
 
 7. Perform a linear regression to test the relationship and display the results
 
 ```{r linear.regression}
 #7
 
+# r squared is the portion of variability in our dependent variable explained by our independent variable 
+LakeChem_lr <- lm(data=LakeChem_raw, temperature_C ~ depth)
+summary(LakeChem_lr)
+# The values printed in the console are: r squared: .6742, p value 2.2e-16
 
 ```
-
 
 8. Interpret your model results in words. Include how much of the variability in temperature is explained by changes in depth, the degrees of freedom on which this finding is based, and the statistical significance of the result. Also mention how much temperature is predicted to change for every 1m change in depth. 
 
 > Answer:
 
-
 ---
 
 ## Multiple regression
 Let's tackle a similar question from a different approach. Here, we want to explore what might the best set of predictors for lake temperature in July across the monitoring period at the North Temperate Lakes LTER. 
-
 
 9. Run an AIC to determine what set of explanatory variables (year4, daynum, depth) is best suited to predict temperature.
 
@@ -115,18 +134,20 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 ```{r temperature.model}
 #9
 
-
+AIC <- lm(data = LakeChem_piped, temperature_C ~ year4 + daynum + depth)
+step(AIC)
 
 #10
 
+# multi_regression <- lm(data = LakeChem_piped, temperature_C ~ year4 + daynum + depth)
+# Because we are looking at the same variables, I'm running summary on AIC
+summary(AIC)
 
 ```
 
 11. What is the final set of explanatory variables that the AIC method suggests we use to predict temperature in our multiple regression? How much of the observed variance does this model explain? Is this an improvement over the model using only depth as the explanatory variable?
 
-> Answer: 
-
-
+> Answer: The AIC suggests that all three variables--year, day, and depth--are statistically important for predicting temperature. These three variables in tandem account for 74.11% of the observed variance in temperature. By comparison, the depth variable on its own only accounts for 67.42% of the observed variance. 
 
 ---
 ## Analysis of Variance
@@ -135,21 +156,38 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 
 ```{r anova.model}
 #12
+ANOVA <- aov(data = LakeChem_piped, temperature_C ~ lakename)
+summary(ANOVA)
 
+linear_model <- lm(data = LakeChem_piped, temperature_C ~ lakename)
+summary(linear_model)
 
-```
+#plot(linear_model)
+
+``` 
 
 13. Is there a significant difference in mean temperature among the lakes? Report your findings. 
 
-> Answer: 
-
-
+> Answer: Yes, there is. 
 
 14. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
 
-```{r scatterplot.2}
+```{r scatterplot.2, fig.height=4, fig.width=6}
 #14.
 
+LakeChem_scatter_lakes <- ggplot(LakeChem_piped,
+                aes(x = depth, 
+                    y = temperature_C, 
+                    color = lakename)) +
+  geom_point(size = .8, alpha = .5) + 
+  geom_smooth(method = lm, se = FALSE) +
+  labs(title = "July Lake Temperature By Depth",
+       y = "Temperature (C)",
+       x = "Depth Below Surface (m)", 
+       legend = "Lake Name") + 
+  theme(plot.title = element_text(hjust=0.5)) +
+  scale_y_continuous(limits = c(0, 35), expand = c(0, 0)) 
+print(LakeChem_scatter_lakes)
 
 ```
 
@@ -158,6 +196,8 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 ```{r tukey.test}
 #15
 
+# TukeyHSD() computes Tukey Honest Significant Differences
+TukeyHSD(ANOVA)
 
 ```
 
@@ -165,10 +205,6 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 
 >Answer:
 
- 
-
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
 
 >Answer: 
-
-
