@@ -42,9 +42,10 @@ library(lubridate)
 # I recognize that relative paths are preferable
 
 LakeChem_raw <- 
-  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", stringsAsFactors = TRUE) 
+  read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", 
+           stringsAsFactors = TRUE) 
 
-# Verified after in Environment tab that sampledate column is read as factor
+# Verified before this in Environment tab that sampledate column is read as factor
 LakeChem_raw$sampledate <- 
   as.Date(LakeChem_raw$sampledate, format = "%m/%d/%y")
 
@@ -91,7 +92,7 @@ LakeChem_piped <-
 LakeChem_scatterTD <- ggplot(LakeChem_piped,
                 aes(x = depth, 
                     y = temperature_C)) +
-  geom_point(size = .8, alpha = .5, color = "red") + 
+  geom_point(size = .8, alpha = .5, color = "dodgerblue") + 
   geom_smooth(method = lm, se = FALSE, color = "black") +
   labs(title = "July Lake Temperature By Depth",
        y = "Temperature (C)",
@@ -104,7 +105,7 @@ print(LakeChem_scatterTD)
 
 6. Interpret the figure. What does it suggest with regards to the response of temperature to depth? Do the distribution of points suggest about anything about the linearity of this trend?
 
-> Answer: This scatter plot and corresponding line of best fit suggest that temperature tends to decrease with depth (an inverse relationship). However, given the long tail on the righthand side of the plot, it appears as though there's a lower "threshold" for temperature, even as depth continues to increase. Conceptually, this makes sense; deep portions of lakes do not freeze first so we wouldn't expect temperatures to continue to drop below 0 as depth increases. 
+> Answer: This scatter plot and corresponding line of best fit suggest that temperature tends to decrease with depth (an inverse relationship). However, given the long tail on the righthand side of the plot, it appears as though there's a floor for temperature, even while depth continues to increase. Conceptually, this makes sense; deep portions of lakes do not freeze first so we wouldn't expect temperatures to continue to drop below 0 as depth increases. 
 
 7. Perform a linear regression to test the relationship and display the results
 
@@ -120,7 +121,7 @@ summary(LakeChem_lr)
 
 8. Interpret your model results in words. Include how much of the variability in temperature is explained by changes in depth, the degrees of freedom on which this finding is based, and the statistical significance of the result. Also mention how much temperature is predicted to change for every 1m change in depth. 
 
-> Answer:
+> Answer: According to this linear regression, 67.42% of temperature variability is explained by depth. There are 34,754 degrees of freedom. The results are statistically significant based on the p-value which is nearly 0. The temperature is predicted to decrease roughly 1.7 degrees for each meter increase in depth. 
 
 ---
 
@@ -139,15 +140,16 @@ step(AIC)
 
 #10
 
-# multi_regression <- lm(data = LakeChem_piped, temperature_C ~ year4 + daynum + depth)
-# Because we are looking at the same variables, I'm running summary on AIC
+#multi_regression <- lm(data = LakeChem_piped, 
+#                       temperature_C ~ year4 + daynum + depth)
+# Because we are looking at the same variables, I'm running summary # on AIC. However, I could also run summary on the above hashed out # multi_regression 
 summary(AIC)
 
 ```
 
 11. What is the final set of explanatory variables that the AIC method suggests we use to predict temperature in our multiple regression? How much of the observed variance does this model explain? Is this an improvement over the model using only depth as the explanatory variable?
 
-> Answer: The AIC suggests that all three variables--year, day, and depth--are statistically important for predicting temperature. These three variables in tandem account for 74.11% of the observed variance in temperature. By comparison, the depth variable on its own only accounts for 67.42% of the observed variance. 
+> Answer: The AIC suggests that all three variables--year, day, and depth--are statistically important for predicting temperature. However, it suggests that year is less important than day and depth. These three variables in tandem account for 74.11% of the observed variance in temperature. By comparison, the depth variable on its own only accounts for 67.42% of the observed variance. As such, it is an improvement over the model with only depth.  
 
 ---
 ## Analysis of Variance
@@ -156,6 +158,7 @@ summary(AIC)
 
 ```{r anova.model}
 #12
+
 ANOVA <- aov(data = LakeChem_piped, temperature_C ~ lakename)
 summary(ANOVA)
 
@@ -168,7 +171,7 @@ summary(linear_model)
 
 13. Is there a significant difference in mean temperature among the lakes? Report your findings. 
 
-> Answer: Yes, there is. 
+> Answer: Yes, there is. We see some fairly large T-values (in absolutele value) indicating that it is statistically unlikely that temperature does NOT vary by lake. 
 
 14. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
 
@@ -194,6 +197,7 @@ print(LakeChem_scatter_lakes)
 15. Use the Tukey's HSD test to determine which lakes have different means.
 
 ```{r tukey.test}
+
 #15 TukeyHSD() computes Tukey Honest Significant Differences
 
 TukeyHSD(ANOVA)
@@ -204,8 +208,8 @@ Tukey
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer: Paul Lake. 
+>Answer: Statistically, Paul Lake, Peter Lake, and Ward Lake have the same temperature (all group c). No lake(s) have mean temperatures that are statistically distinct from the other lakes. 
 
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
 
->Answer: Two-Sample T-Test 
+>Answer: We could also run the Two-Sample T-Test. 
