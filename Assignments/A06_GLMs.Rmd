@@ -112,10 +112,8 @@ print(LakeChem_scatterTD)
 ```{r linear.regression}
 #7
 
-# r squared is the portion of variability in our dependent variable explained by our independent variable 
 LakeChem_lr <- lm(data=LakeChem_raw, temperature_C ~ depth)
 summary(LakeChem_lr)
-# The values printed in the console are: r squared: .6742, p value 2.2e-16
 
 ```
 
@@ -142,7 +140,8 @@ step(AIC)
 
 #multi_regression <- lm(data = LakeChem_piped, 
 #                       temperature_C ~ year4 + daynum + depth)
-# Because we are looking at the same variables, I'm running summary # on AIC. However, I could also run summary on the above hashed out # multi_regression 
+# Because we are looking at the same variables, I'm running summary on AIC. 
+# However, I could also run summary on the above hashed out multi_regression 
 summary(AIC)
 
 ```
