@@ -67,7 +67,7 @@ O3_2017 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2017_raw.cs
 O3_2018 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2018_raw.csv", stringsAsFactors = TRUE)
 O3_2019 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2019_raw.csv", stringsAsFactors = TRUE)
 
-GaringerOzone <- rbind(O3_2010, O3_2011, O3_2012, O3_2013, O3_2014, O3_2015, O3_2016, O3_2017, O3_2018, O3_2019)
+Ozone <- rbind(O3_2010, O3_2011, O3_2012, O3_2013, O3_2014, O3_2015, O3_2016, O3_2017, O3_2018, O3_2019)
 
 ```
 
@@ -77,43 +77,48 @@ GaringerOzone <- rbind(O3_2010, O3_2011, O3_2012, O3_2013, O3_2014, O3_2015, O3_
 
 4. Wrangle your dataset so that it only contains the columns Date, Daily.Max.8.hour.Ozone.Concentration, and DAILY_AQI_VALUE. 
 
+```{r}
+# 3
+
+Ozone$Date <- as.Date(Ozone$Date, format = "%m/%d/%Y")
+
+# 4
+
+OzoneShort <- 
+  select(Ozone, 
+         Date, 
+         Daily.Max.8.hour.Ozone.Concentration, 
+         DAILY_AQI_VALUE)
+
+# Visualizing trends for my own benefit
+
+OzonePlot <- 
+  ggplot(OzoneShort, aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration)) + 
+  geom_line() + 
+  geom_smooth(method = lm)
+OzonePlot
+
+AQIPlot <- 
+  ggplot(OzoneShort, aes(x = Date, y = DAILY_AQI_VALUE)) + 
+  geom_line() + 
+  geom_smooth(method = lm)
+AQIPlot
+
+```
+
 5. Notice there are a few days in each year that are missing ozone concentrations. We want to generate a daily dataset, so we will need to fill in any missing days with NA. Create a new data frame that contains a sequence of dates from 2010-01-01 to 2019-12-31 (hint: `as.data.frame(seq())`). Call this new data frame Days. Rename the column name in Days to "Date".
 
 6. Use a `left_join` to combine the data frames. Specify the correct order of data frames within this function so that the final dimensions are 3652 rows and 3 columns. Call your combined data frame GaringerOzone. 
 
 ```{r}
-# 3
-
-GaringerOzone$Date <- as.Date(GaringerOzone$Date, format = "%m/%d/%Y")
-
-# 4
-
-GaringerOzoneShort <- 
-  select(GaringerOzone, 
-         Date, 
-         Daily.Max.8.hour.Ozone.Concentration, 
-         DAILY_AQI_VALUE)
-
 # 5
-f_month <- month(first(GaringerOzoneShort$Date))
-f_year <- year(first(GaringerOzoneShort$Date))
-GaringerOzoneTS <- 
-  ts(GaringerOzoneShort$Daily.Max.8.hour.Ozone.Concentration, 
-                      start=c(f_year,f_month), 
-                      frequency = 365)
-GaringerAQITS <- 
-  ts(GaringerOzoneShort$DAILY_AQI_VALUE, 
-                      start=c(f_year,f_month), 
-                      frequency = 365)
 
-GaringerOzoneDecomp <- stl(GaringerOzoneTS, s.window = "periodic")
-GaringerAQIDecomp <- stl(GaringerAQITS, s.window = "periodic")
+Days <- as.data.frame(seq(as.Date("2010/1/1"),as.Date("2019/12/31"),"day"))
+names(Days)[1] <- "Date"
 
-Days <- as.data.frame(GaringerOzoneDecomp$time.series[,1:3])
-Days <- mutate(Days, Date = GaringerOzoneShort$Date)
+#6 left table should be days, right ozoneshort
 
-# 6
-
+GaringerOzone <- left_join(Days, OzoneShort, c("Date"="Date"))
 
 ```
 
@@ -124,9 +129,16 @@ Days <- mutate(Days, Date = GaringerOzoneShort$Date)
 ```{r}
 #7
 
+#Clean this up so the plot is titled, there are more dates on the axis, and axis titles are appropriate
+OzonePlot <- 
+  ggplot(GaringerOzone, aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration)) + 
+  geom_line() + 
+  geom_smooth(method = lm)
+OzonePlot
+
 ```
 
->Answer:
+>Answer: Based on visual analysis, the plot suggests that, though mild, ozone levels at Garinger Hall have been decreasing over the 10 year period from 2010 to 2020. Specifically, it looks as though the levels have fallen from ~.044 to ~.040. 
 
 ## Time Series Analysis
 
@@ -136,6 +148,17 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 
 ```{r}
 #8
+
+GaringerOzoneClean <- GaringerOzone %>%mutate()
+
+# Adding new column with no missing obs, just for illustration purpose
+# In real applications you will simply replace NAs
+wind_data_clean <- 
+  wind_data %>% 
+  mutate( AWND.clean = zoo::na.approx(AWND) )
+
+summary(GaringerOzoneClean$AWND.clean)
+#Note the NA is gone
 
 ```
 
@@ -209,3 +232,25 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 ```
 
 > Answer: 
+
+```{r}
+
+# Transform data into time series for STL function 
+OzoneTS <- 
+  ts(OzoneShort$Daily.Max.8.hour.Ozone.Concentration, 
+                      start=c(2010,1,1),
+                      frequency = 365)
+AQITS <- 
+  ts(OzoneShort$DAILY_AQI_VALUE, 
+                      start=c(2010,1,1),
+                      frequency = 365)
+
+OzoneDecomp <- stl(OzoneTS, s.window = "periodic")
+plot(OzoneDecomp)
+AQIDecomp <- stl(AQITS, s.window = "periodic")
+plot(AQIDecomp)
+
+Days <- as.data.frame(AQIDecomp$time.series[,1:3])
+Days <- mutate(Days, Date = OzoneShort$Date)
+
+```
