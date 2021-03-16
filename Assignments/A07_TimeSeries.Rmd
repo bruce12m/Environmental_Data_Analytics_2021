@@ -38,6 +38,10 @@ library(tidyverse)
 library(lubridate)
 library(trend)
 library(zoo)
+library(agricolae)
+library(ggplot2)
+library(cowplot)
+library(scales)
 
 # I could add more to this theme but will leave it more simple for now 
 mytheme <- theme_classic(base_size = 14) +
@@ -80,9 +84,33 @@ GaringerOzone <- rbind(O3_2010, O3_2011, O3_2012, O3_2013, O3_2014, O3_2015, O3_
 ```{r}
 # 3
 
+GaringerOzone$Date <- as.Date(GaringerOzone$Date, format = "%m/%d/%Y")
+
 # 4
 
+GaringerOzoneShort <- 
+  select(GaringerOzone, 
+         Date, 
+         Daily.Max.8.hour.Ozone.Concentration, 
+         DAILY_AQI_VALUE)
+
 # 5
+f_month <- month(first(GaringerOzoneShort$Date))
+f_year <- year(first(GaringerOzoneShort$Date))
+GaringerOzoneTS <- 
+  ts(GaringerOzoneShort$Daily.Max.8.hour.Ozone.Concentration, 
+                      start=c(f_year,f_month), 
+                      frequency = 365)
+GaringerAQITS <- 
+  ts(GaringerOzoneShort$DAILY_AQI_VALUE, 
+                      start=c(f_year,f_month), 
+                      frequency = 365)
+
+GaringerOzoneDecomp <- stl(GaringerOzoneTS, s.window = "periodic")
+GaringerAQIDecomp <- stl(GaringerAQITS, s.window = "periodic")
+
+Days <- as.data.frame(GaringerOzoneDecomp$time.series[,1:3])
+Days <- mutate(Days, Date = GaringerOzoneShort$Date)
 
 # 6
 
