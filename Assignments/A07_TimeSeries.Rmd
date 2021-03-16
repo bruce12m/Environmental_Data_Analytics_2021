@@ -44,7 +44,7 @@ library(cowplot)
 library(scales)
 
 # I could add more to this theme but will leave it more simple for now 
-mytheme <- theme_classic(base_size = 14) +
+mytheme <- theme_classic(base_size = 12) +
   theme(axis.text = element_text(color = "black"), 
         legend.position = "right", 
         panel.grid.major = element_line(colour = "gray")) 
@@ -52,8 +52,7 @@ theme_set(mytheme)
 
 #2 
 
-# Again, I'm providing full paths because 
-# RStudio on my virtual machine won't process the relative paths
+# Providing full paths b/c RStudio on my VM won't process the relative paths
 # I recognize that relative paths are preferable
 
 O3_2010 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2010_raw.csv", stringsAsFactors = TRUE)
@@ -67,7 +66,8 @@ O3_2017 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2017_raw.cs
 O3_2018 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2018_raw.csv", stringsAsFactors = TRUE)
 O3_2019 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2019_raw.csv", stringsAsFactors = TRUE)
 
-Ozone <- rbind(O3_2010, O3_2011, O3_2012, O3_2013, O3_2014, O3_2015, O3_2016, O3_2017, O3_2018, O3_2019)
+Ozone <- rbind(O3_2010, O3_2011, O3_2012, O3_2013, O3_2014, 
+               O3_2015, O3_2016, O3_2017, O3_2018, O3_2019)
 
 ```
 
@@ -90,20 +90,6 @@ OzoneShort <-
          Daily.Max.8.hour.Ozone.Concentration, 
          DAILY_AQI_VALUE)
 
-# Visualizing trends for my own benefit
-
-OzonePlot <- 
-  ggplot(OzoneShort, aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration)) + 
-  geom_line() + 
-  geom_smooth(method = lm)
-OzonePlot
-
-AQIPlot <- 
-  ggplot(OzoneShort, aes(x = Date, y = DAILY_AQI_VALUE)) + 
-  geom_line() + 
-  geom_smooth(method = lm)
-AQIPlot
-
 ```
 
 5. Notice there are a few days in each year that are missing ozone concentrations. We want to generate a daily dataset, so we will need to fill in any missing days with NA. Create a new data frame that contains a sequence of dates from 2010-01-01 to 2019-12-31 (hint: `as.data.frame(seq())`). Call this new data frame Days. Rename the column name in Days to "Date".
@@ -116,7 +102,7 @@ AQIPlot
 Days <- as.data.frame(seq(as.Date("2010/1/1"),as.Date("2019/12/31"),"day"))
 names(Days)[1] <- "Date"
 
-#6 left table should be days, right ozoneshort
+#6 Days is left so that we retain all dates (3652 observations)
 
 GaringerOzone <- left_join(Days, OzoneShort, c("Date"="Date"))
 
@@ -129,16 +115,20 @@ GaringerOzone <- left_join(Days, OzoneShort, c("Date"="Date"))
 ```{r}
 #7
 
-#Clean this up so the plot is titled, there are more dates on the axis, and axis titles are appropriate
-OzonePlot <- 
-  ggplot(GaringerOzone, aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration)) + 
+OzonePlot <- ggplot(GaringerOzone, 
+                    aes(x = Date, 
+                        y = Daily.Max.8.hour.Ozone.Concentration)) + 
   geom_line() + 
-  geom_smooth(method = lm)
+  geom_smooth(method = lm, se = FALSE, color = "blue") + 
+  labs(title = "Grainger Hall Ozone Concentrations Over Time",
+       y = "Daily Max Ozone Concentrations (PPM)",
+       x = "Date") +
+  theme(plot.title = element_text(hjust=0.5)) 
 OzonePlot
 
 ```
 
->Answer: Based on visual analysis, the plot suggests that, though mild, ozone levels at Garinger Hall have been decreasing over the 10 year period from 2010 to 2020. Specifically, it looks as though the levels have fallen from ~.044 to ~.040. 
+>Answer: Based on visual analysis, the plot suggests that, though mild, ozone levels at Grainger Hall have been decreasing over the 10 year period from 2010 to 2020. Specifically, it looks as though the levels have fallen from ~.044 to ~.040 ppm. 
 
 ## Time Series Analysis
 
@@ -152,10 +142,8 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 summary(GaringerOzone$Daily.Max.8.hour.Ozone.Concentration)
 GaringerOzoneClean <- 
   GaringerOzone %>% 
-  mutate(Ozone.Concentration.Clean = zoo::na.approx(Daily.Max.8.hour.Ozone.Concentration))
-GaringerOzoneClean <- 
-  select(GaringerOzoneClean, 
-         Date, 
+  mutate(Ozone.Concentration.Clean = zoo::na.approx(Daily.Max.8.hour.Ozone.Concentration)) %>%
+  select(Date, 
          Ozone.Concentration.Clean, 
          DAILY_AQI_VALUE)
 summary(GaringerOzoneClean$Ozone.Concentration.Clean)
@@ -204,37 +192,34 @@ plot(OzoneMonthlyDecomp)
 
 ```
 
-
 12. Run a monotonic trend analysis for the monthly Ozone series. In this case the seasonal Mann-Kendall is most appropriate; why is this?
 
 ```{r}
-#12
+#12 SMK test
 
-# Generate time series (trend test needs ts, not data.frame)
-f_month <- month(first(wind_data_clean$DATE))
-f_year <- year(first(wind_data_clean$DATE))
-wind_data_ts <- ts(wind_data_clean$AWND.clean,
-                   start=c(f_year,f_month),
-                   frequency=12) 
-
-#decompose
-wind_data_decomp <- stl(wind_data_ts,s.window = "periodic")
-plot(wind_data_decomp)
-
-# Run SMK test
-wind_data_trend1 <- Kendall::SeasonalMannKendall(wind_data_ts)
+OzoneMonthlyTrend <- Kendall::SeasonalMannKendall(GaringerOzone.monthly.ts)
+OzoneMonthlyTrend
 
 ```
 
-> Answer: 
+> Answer: Because we haven't yet removed seasonality.
 
 13. Create a plot depicting mean monthly ozone concentrations over time, with both a geom_point and a geom_line layer. Edit your axis labels accordingly.
 
 ```{r}
 # 13
 
-
-
+OzoneMonthlyPlot <- 
+  ggplot(GaringerOzone.monthly, 
+         aes(x = Date, 
+             y = OzoneMonthlyAverage)) + 
+  geom_point(size = 2.0) +
+  geom_line(color = "blue") +
+  labs(title = "Grainger Hall Average Monthly Maximum Ozone Concentrations",
+       y = "Average Max O3 Concentrations Per Month (PPM)",
+       x = "Date") +
+  theme(plot.title = element_text(hjust=0.5))   
+OzoneMonthlyPlot
 
 ```
 
@@ -249,12 +234,18 @@ wind_data_trend1 <- Kendall::SeasonalMannKendall(wind_data_ts)
 ```{r}
 #15
 
+OzoneMonthlyComponents <- as.data.frame(OzoneMonthlyDecomp$time.series[,1:3]) %>% 
+  mutate(Observed = GaringerOzone.monthly$OzoneMonthlyAverage,
+         Date = GaringerOzone.monthly$Date)
+ 
+OzoneMonthlyNonseasonal <- ts(data = OzoneMonthlyComponents$Observed - OzoneMonthlyComponents$seasonal,
+                       start = c(2010,1),
+                       frequency = 12)
 
+# 16 MK test
 
-#16
-
-
-
+OzoneMonthlyComponentsTrend <- Kendall::MannKendall(OzoneMonthlyNonseasonal)
+OzoneMonthlyComponentsTrend
 
 ```
 
