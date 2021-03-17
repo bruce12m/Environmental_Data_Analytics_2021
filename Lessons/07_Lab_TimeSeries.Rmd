@@ -174,11 +174,47 @@ Monotonic trends are a gradual shift over time that is consistent in direction. 
 
 # Exercise 11: Apply one of the trend detection test to the original data set. Remember that the data has seasonal component, which test can be applied in this case?
 
-
+# Run SMK tests
+rain_data_trend1 <- Kendall::SeasonalMannKendall(ts_Rain)
+rain_data_trend2 <- smk.test(ts_Rain)
+temp_data_trend1 <- SeasonalMannKendall(ts_Temp)
+temp_data_trend2 <- smk.test((ts_Temp))
+# Inspect results: Rain
+rain_data_trend1
+summary(rain_data_trend1)
+summary(rain_data_trend2)
+temp_data_trend1
+summary(temp_data_trend1)
 
 # Exercise 12: Now remove the seasonality and apply another test. Compare the results with what you obtained on Exercise 9.
 
-
+#Remove seasonality (subtract seasonal values from observed values)
+ts_Rain_noseason <- ts(data = Rain_Components$Observed - Rain_Components$seasonal,
+                       start = c(f_year,f_month),
+                       frequency = 12)
+#Apply Mann Kendall
+mk_Rain <- trend::mk.test(ts_Rain_noseason)
+mk_Rain
+ts_Temp_noseason <- ts(data = Temp_Components$Observed - Temp_Components$seasonal,
+                       start = c(1901,1),
+                       frequency = 12)
+mk_Temp <- trend::mk.test(ts_Temp_noseason)
+mk_Temp
+#Plots
+Temp_Components <- mutate(Temp_Components, Temp_noseason = Observed - seasonal)
+Rain_Components <- mutate(Rain_Components, Rain_noseason = Observed - seasonal)
+#plotting resulting series
+ggplot(Temp_Components) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25, alpha=0.3) +
+  geom_line(aes(y = Temp_noseason, x = Date), color = "red") +
+  geom_smooth(aes(y = Temp_noseason, x = Date)) +
+  ylab("Temperature")
+#plotting resulting series
+ggplot(Rain_Components) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25, alpha=0.3) +
+  geom_line(aes(y = ts_Rain_noseason, x = Date), color = "green", alpha=0.7) +
+  geom_smooth(aes(y = Rain_noseason, x = Date)) +
+  ylab("Rainfall")
 
 ```
 

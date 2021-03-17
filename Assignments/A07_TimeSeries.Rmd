@@ -55,16 +55,16 @@ theme_set(mytheme)
 # Providing full paths b/c RStudio on my VM won't process the relative paths
 # I recognize that relative paths are preferable
 
-O3_2010 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2010_raw.csv", stringsAsFactors = TRUE)
-O3_2011 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2011_raw.csv", stringsAsFactors = TRUE)
-O3_2012 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2012_raw.csv", stringsAsFactors = TRUE)
-O3_2013 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2013_raw.csv", stringsAsFactors = TRUE)
-O3_2014 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2014_raw.csv", stringsAsFactors = TRUE)
-O3_2015 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2015_raw.csv", stringsAsFactors = TRUE)
-O3_2016 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2016_raw.csv", stringsAsFactors = TRUE)
-O3_2017 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2017_raw.csv", stringsAsFactors = TRUE)
-O3_2018 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2018_raw.csv", stringsAsFactors = TRUE)
-O3_2019 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2019_raw.csv", stringsAsFactors = TRUE)
+O3_2010 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2010_raw.csv", stringsAsFactors = TRUE)
+O3_2011 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2011_raw.csv", stringsAsFactors = TRUE)
+O3_2012 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2012_raw.csv", stringsAsFactors = TRUE)
+O3_2013 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2013_raw.csv", stringsAsFactors = TRUE)
+O3_2014 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2014_raw.csv", stringsAsFactors = TRUE)
+O3_2015 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2015_raw.csv", stringsAsFactors = TRUE)
+O3_2016 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2016_raw.csv", stringsAsFactors = TRUE)
+O3_2017 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2017_raw.csv", stringsAsFactors = TRUE)
+O3_2018 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2018_raw.csv", stringsAsFactors = TRUE)
+O3_2019 <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2019_raw.csv", stringsAsFactors = TRUE)
 
 Ozone <- rbind(O3_2010, O3_2011, O3_2012, O3_2013, O3_2014, 
                O3_2015, O3_2016, O3_2017, O3_2018, O3_2019)
@@ -150,7 +150,7 @@ summary(GaringerOzoneClean$Ozone.Concentration.Clean)
 
 ```
 
-> Answer: 
+> Answer: A spline interpolation applies a polynomial fit to interpolate missing values rather than a linear fit. Meanwhile, a piecewise constant picks the nearest data and assigns that data's value to the missing value. In our situation, there are not that many days with missing values over our 10 year span. As such, rather than assigning the same value to missing days as is assigned to either the previous day or the next day, it makes more sense to assign a value somewhere in the middle (either linear or spline). However, because we aren't missing multiple days in a row and because we have no reason to believe that O3 concentrations aren't linear, a linear interpolation makes more sense and is easier to accomplish. 
 
 9. Create a new data frame called `GaringerOzone.monthly` that contains aggregated data: mean ozone concentrations for each month. In your pipe, you will need to first add columns for year and month to form the groupings. In a separate line of code, create a new Date column with each month-year combination being set as the first day of the month (this is for graphing purposes only)
 
@@ -202,7 +202,7 @@ OzoneMonthlyTrend
 
 ```
 
-> Answer: Because we haven't yet removed seasonality.
+> Answer: We haven't yet removed seasonality's impact on our dataset; therefore, the seasonal Mann-Kendall is most appropriate as it acknowledges the dataset's seasonality. 
 
 13. Create a plot depicting mean monthly ozone concentrations over time, with both a geom_point and a geom_line layer. Edit your axis labels accordingly.
 
@@ -225,7 +225,7 @@ OzoneMonthlyPlot
 
 14. To accompany your graph, summarize your results in context of the research question. Include output from the statistical test in parentheses at the end of your sentence. Feel free to use multiple sentences in your interpretation.
 
-> Answer: 
+> Answer: The null hypothesis of the seasonal Mann-Kendall is that that the data doesn't have a trend. Here, that means that the null hypothesis is that average monthly maximum Ozone levels at Grainger Hall remain statistically stationary over our 10 year time period. Because our p value is less than 0.05 (it's 0.046724), we can reject our null hypothesis. This in turn means that we have a trend in our data--that average monthly maximum ozone levels are NOT stationary.
 
 15. Subtract the seasonal component from the `GaringerOzone.monthly.ts`. Hint: Look at how we extracted the series components for the EnoDischarge on the lesson Rmd file.
 
@@ -238,7 +238,8 @@ OzoneMonthlyComponents <- as.data.frame(OzoneMonthlyDecomp$time.series[,1:3]) %>
   mutate(Observed = GaringerOzone.monthly$OzoneMonthlyAverage,
          Date = GaringerOzone.monthly$Date)
  
-OzoneMonthlyNonseasonal <- ts(data = OzoneMonthlyComponents$Observed - OzoneMonthlyComponents$seasonal,
+OzoneMonthlyNonseasonal <- 
+  ts(data = OzoneMonthlyComponents$Observed - OzoneMonthlyComponents$seasonal,
                        start = c(2010,1),
                        frequency = 12)
 
@@ -249,4 +250,4 @@ OzoneMonthlyComponentsTrend
 
 ```
 
-> Answer: 
+> Answer: In our Mann Kendall test, after we had removed the seasonality from our data, our p value decreased to 0.0075402 meaning that we are even more confident that the null hypothesis--that average monthly maximum Ozone levels at Grainger Hall remain stationary over our 10 year time period--is false. Put another way, after removing the seasonality, we feel even more confident that there is a trend in average monthly maximum ozone levels. 
