@@ -31,9 +31,13 @@ In this lesson, we explore how data can be represented spatially, and how we can
 The packages we'll need for this lesson are below. Install as necessary and ensure they can each be imported without error.
 
 ```{r install.packages}
+
+getwd()
 #Import the tidyverse library 
 library(tidyverse, quietly = TRUE)
-
+install.packages("sf")
+install.packages("leaflet")
+install.packages("mapview")
 library(sf)
 library(leaflet)
 library(mapview)
@@ -72,6 +76,10 @@ Spatial data lends itself nicely to visualization, so let's examine a few ways t
 
 #Read the raw 2017 Ozone data
 EPAair_PM25_NC2018_raw <- read.csv("./Data/Raw/EPAair_PM25_NC2018_raw.csv")
+
+```
+
+```{r}
 
 #Reduce our data to just one record for each location, computing mean and max daily AQI values
 EPAair_PM_avg <- EPAair_PM25_NC2018_raw %>% 
