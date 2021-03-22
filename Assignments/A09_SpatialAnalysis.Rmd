@@ -1,6 +1,6 @@
 ---
 title: "Assignment 9: Spatial Analysis in R"
-author: "Student Name"
+author: Molly Bruce
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -31,9 +31,14 @@ This exercise accompanies the lessons in Environmental Data Analytics (ENV872L) 
 ```{r Prepare workspace}
 #1.
 
+getwd()
 
 #2. 
 
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(mapview)
 
 ```
 
@@ -47,20 +52,21 @@ In this exercise, we will be exploring stream gage height data in Nebraska corre
 
 ```{r Read the county data into an sf dataframe}
 #3. Read in Counties shapefile into an sf dataframe, filtering for just NE counties
-
+cb2018NE_sf <- 
+  st_read('C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Spatial/cb_2018_us_county_20m.shp') %>% 
+  filter(STATEFP == 31)
 
 #4. Reveal the CRS of the counties features
-
+st_crs(cb2018NE_sf)
 
 #5. Plot the data
-
+mapView(cb2018NE_sf, zcol = "AWATER")
 ```
 
 6. What is the EPSG code of the Counties dataset? Is this a geographic or a projected coordinate reference system? (Or, does this CRS use angular or planar coordinate units?) To what datum is this CRS associated? (Tip: look the EPSG code on <https://spatialreference.org>) 
 
-> ANSWER: 
+> ANSWER: The ESPG code of our dataset is 4269. This ESPG code is associated with NAD83, a geographic cordinate system. NAD83 is associated with the 1980 Geodetic Reference System. or GRS80. 
 > 
-
 
 ### Read in gage locations csv as a dataframe, then display the column names it contains
 
@@ -72,17 +78,17 @@ Next we'll read in some USGS/NWIS gage location data added to the `Data/Raw` fol
 
 ```{r Read in USGS Gage Locations}
 #7. Read in gage locations csv as a dataframe
+nwisNE <- read_csv('C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NWIS_SiteInfo_NE_RAW.csv')
 
-
-#8. Reveal the names of the columns
-
-
+#8. Reveal the names of the columns 
+head(nwisNE)
+colnames(nwisNE)
+# Consider returning to this and doing it so it's just the column names
 ```
 
 9. What columns in the dataset contain the x and y coordinate values, respectively?  
-> ANSWER:
+> ANSWER: "dec_lat_va" contains the dataset's x coordinates and "dec_long_va" contains the dataset's y coordinates.
 > 
-
 
 ### Convert the dataframe to a spatial features ("sf") dataframe
 
@@ -93,18 +99,19 @@ Next we'll read in some USGS/NWIS gage location data added to the `Data/Raw` fol
 
 ```{r Convert dataframe to sf dataframe}
 #10. Convert to an sf object
-
+#Read our EPA points into a spatial dataframe
+nwisNE_sf <- nwisNE %>% 
+  st_as_sf(coords = c('dec_long_va','dec_lat_va'), crs=4269) # these long lats might be reversed
 
 #11. Re-examine the column names
-
-
+head(nwisNE_sf)
+colnames(nwisNE_sf)
 ```
 
 12. What new field(s) appear in the sf dataframe created? What field(s), if any, disappeared?
 
->ANSWER: 
+>ANSWER: The dec_long_va and dec_lat_va columns disappeared. However, a new geometry column appeared containing the information from these two absent columns. 
 >
-
 
 ### Plot the gage locations on top of the counties
 
@@ -115,7 +122,9 @@ Next we'll read in some USGS/NWIS gage location data added to the `Data/Raw` fol
 
 ```{r Plot the spatial features}
 #13. Plot the gage locations atop the county features
-
+#Plot the data using longitude and latitude as X and Y
+ggplot(EPAair_PM_avg, aes(x=SITE_LONGITUDE, y=SITE_LATITUDE)) + 
+  geom_point(aes(color=meanPM), size=4, alpha=0.5) + coord_equal()
 
 ```
 
