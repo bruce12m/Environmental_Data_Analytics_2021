@@ -204,13 +204,13 @@ Now let's zoom into a particular county and examine the gages located there.
 
 ```{r}
 #22 Select the county
-
+lancaster <- cb2018NE_sf_UTM %>% filter(NAME %in% c("Lancaster"))
 
 #23 Select gages within the selected county
-
+gagesLancaster <- nwisNE_sf_UTM %>% st_intersection(lancaster)
 
 #24 Plot
-
-
-
+mapview(cb2018NE_sf_UTM, alpha.regions = .4, col.regions = 'gray', color = "black") + 
+  mapview(lancaster, alpha.regions = .5, col.regions = 'blue') +
+  mapview(gagesLancaster, col.regions = 'red')
 ```
