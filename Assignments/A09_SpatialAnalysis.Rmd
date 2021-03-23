@@ -84,7 +84,8 @@ nwisNE <- read_csv('C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Dat
 colnames(nwisNE)
 ```
 
-9. What columns in the dataset contain the x and y coordinate values, respectively?  
+9. What columns in the dataset contain the x and y coordinate values, respectively?
+
 > ANSWER: "dec_lat_va" contains the dataset's x coordinates and "dec_long_va" contains the dataset's y coordinates.
 > 
 
@@ -107,7 +108,7 @@ colnames(nwisNE_sf)
 
 12. What new field(s) appear in the sf dataframe created? What field(s), if any, disappeared?
 
->ANSWER: The dec_long_va and dec_lat_va columns disappeared. However, a new geometry column appeared containing the information from these two absent columns. 
+>ANSWER: The dec_long_va and dec_lat_va columns disappeared. However, a new geometry column appeared containing the information from these two absent columns.
 >
 
 ### Plot the gage locations on top of the counties
@@ -172,7 +173,6 @@ ggplot() +
 
 Up next we will do some spatial analysis with our data. To prepare for this, we should transform our data into a projected coordinate system. We'll choose UTM Zone 14N (EPGS = 32614).
 
-
 ### Transform the counties and gage site datasets to UTM Zone 14N
 
 20. Transform the counties and gage sf datasets to UTM Zone 14N (EPGS = 32614).
@@ -180,7 +180,6 @@ Up next we will do some spatial analysis with our data. To prepare for this, we 
 
 ```{r}
 #20 Transform the counties and gage location datasets to UTM Zone 14
-
 cb2018NE_sf_UTM <- st_transform(cb2018NE_sf, crs=26914)
 nwisNE_sf_UTM <- st_transform(nwisNE_sf, crs=26914)
 
@@ -189,7 +188,6 @@ ggplot() +
   geom_sf(data=cb2018NE_sf_UTM, aes()) +
   geom_sf(data=nwisNE_sf_UTM, aes(color="red"))
 ```
-
 
 ### Select the gages falling within a given county
 
