@@ -1,16 +1,10 @@
 ---
 title: 'Assignment 9: Spatial Analysis in R'
 author: "Molly Bruce"
+output: pdf_document
 geometry: margin=2.54cm
-output:
-  html_document:
-    df_print: paged
-  pdf_document: yes
-always_allow_html: yes
-editor_options:
+editor_options: 
   chunk_output_type: console
-  markdown:
-    wrap: 72
 ---
 
 ## OVERVIEW
@@ -38,10 +32,12 @@ getwd()
 setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
 
 #2. 
+library(remotes)
 library(tidyverse)
 library(sf)
 library(leaflet)
 library(mapview)
+#remotes::install_github("r-spatial/mapview")
 ```
 
 ### Read (and filter) county features into an sf dataframe and plot
@@ -64,7 +60,14 @@ countiesNE_sf <-
 st_crs(countiesNE_sf)
 
 #5. Plot the data
-mapView(countiesNE_sf, zcol = "AWATER")
+ggplot() + 
+  geom_sf(data=countiesNE_sf, aes()) +
+  labs(title = 'Counties in Nebraska', 
+       y = "Longitude",
+       x = "Latitude") +
+  theme(plot.title = element_text(hjust=0.5))
+# mapView(countiesNE_sf, zcol = "AWATER")
+# changed from this but couldn't knit with mapview (grr)
 ```
 
 6. What is the EPSG code of the Counties dataset? Is this a geographic or a projected coordinate reference system? (Or, does this CRS use angular or planar coordinate units?) To what datum is this CRS associated? (Tip: look the EPSG code on <https://spatialreference.org>) 
@@ -168,7 +171,11 @@ Now we can examine where the flooding appears most acute by visualizing gage hei
 #19 Map the points, sized by gage height
 ggplot() + 
   geom_sf(data=countiesNE_sf, aes()) +
-  geom_sf(data=gagesNEjoined, aes(color="red", alpha = .1, size=gage_ht))
+  geom_sf(data=gagesNEjoined, color="red", alpha = .2, aes(size=gage_ht)) + 
+  labs(title = 'Gage Sites in Nebraska & Their Flow Height (ft)', 
+       y = "Longitude",
+       x = "Latitude") +
+  theme(plot.title = element_text(hjust=0.5))
 ```
 
 ---
@@ -190,7 +197,11 @@ gagesNE_sf_UTM <- st_transform(gagesNE_sf, crs=26914)
 #21 Plot the data
 ggplot() + 
   geom_sf(data=countiesNE_sf_UTM, aes()) +
-  geom_sf(data=gagesNE_sf_UTM, aes(color="red"))
+  geom_sf(data=gagesNE_sf_UTM, color="red") + 
+  labs(title = 'Gage Sites in Nebraska (UTM)', 
+       y = "Longitude",
+       x = "Latitude") +
+  theme(plot.title = element_text(hjust=0.5))
 ```
 
 ### Select the gages falling within a given county
@@ -212,7 +223,16 @@ lancaster <- countiesNE_sf_UTM %>% filter(NAME %in% c("Lancaster"))
 gagesLancaster <- gagesNE_sf_UTM %>% st_intersection(lancaster)
 
 #24 Plot
-mapview(countiesNE_sf_UTM, alpha.regions = .4, col.regions = 'gray', color = "black") + 
-  mapview(lancaster, alpha.regions = .5, col.regions = 'blue') +
-  mapview(gagesLancaster, col.regions = 'red')
+ggplot() + 
+  geom_sf(data=countiesNE_sf_UTM, color = 'gray') + 
+  geom_sf(data=lancaster, color = 'blue') + 
+  geom_sf(data=gagesLancaster, color = 'red', size = .9) + 
+  labs(title = 'Gage Sites in Lancaster County, Nebraska', 
+       y = "Longitude",
+       x = "Latitude") +
+  theme(plot.title = element_text(hjust=0.5))
+# mapview(countiesNE_sf_UTM, alpha.regions = .4, col.regions = 'gray', color = "black") + 
+#  mapview(lancaster, alpha.regions = .5, col.regions = 'blue') +
+#  mapview(gagesLancaster, col.regions = 'red')
+# changed from this but couldn't knit with mapview (grr)
 ```
