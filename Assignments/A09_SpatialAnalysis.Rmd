@@ -1,11 +1,15 @@
 ---
-title: "Assignment 9: Spatial Analysis in R"
-author: Molly Bruce
-output: pdf_document
+title: 'Assignment 9: Spatial Analysis in R'
+author: "Molly Bruce"
 geometry: margin=2.54cm
-editor_options: 
+output:
+  html_document:
+    df_print: paged
+  pdf_document: yes
+always_allow_html: yes
+editor_options:
   chunk_output_type: console
-  markdown: 
+  markdown:
     wrap: 72
 ---
 
@@ -30,16 +34,14 @@ This exercise accompanies the lessons in Environmental Data Analytics (ENV872L) 
 
 ```{r Prepare workspace}
 #1.
-
 getwd()
+setwd("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021")
 
 #2. 
-
 library(tidyverse)
 library(sf)
 library(leaflet)
 library(mapview)
-
 ```
 
 ### Read (and filter) county features into an sf dataframe and plot
@@ -52,20 +54,22 @@ In this exercise, we will be exploring stream gage height data in Nebraska corre
 
 ```{r Read the county data into an sf dataframe}
 #3. Read in Counties shapefile into an sf dataframe, filtering for just NE counties
-cb2018NE_sf <- 
+# As always, providing full paths b/c RStudio on my VM won't process the relative paths
+# I recognize that relative paths are preferable
+countiesNE_sf <- 
   st_read('C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Spatial/cb_2018_us_county_20m.shp') %>% 
   filter(STATEFP == 31)
 
 #4. Reveal the CRS of the counties features
-st_crs(cb2018NE_sf)
+st_crs(countiesNE_sf)
 
 #5. Plot the data
-mapView(cb2018NE_sf, zcol = "AWATER")
+mapView(countiesNE_sf, zcol = "AWATER")
 ```
 
 6. What is the EPSG code of the Counties dataset? Is this a geographic or a projected coordinate reference system? (Or, does this CRS use angular or planar coordinate units?) To what datum is this CRS associated? (Tip: look the EPSG code on <https://spatialreference.org>) 
 
-> ANSWER: The ESPG code of our dataset is 4269. This ESPG code is associated with NAD83, a geographic cordinate system. NAD83 is associated with the 1980 Geodetic Reference System. or GRS80. 
+> ANSWER: The ESPG code of our dataset is 4269. This ESPG code is associated with NAD83, a geographic cordinate system. NAD83 is associated with the 1980 Geodetic Reference System (GRS80). 
 > 
 
 ### Read in gage locations csv as a dataframe, then display the column names it contains
@@ -78,10 +82,10 @@ Next we'll read in some USGS/NWIS gage location data added to the `Data/Raw` fol
 
 ```{r Read in USGS Gage Locations}
 #7. Read in gage locations csv as a dataframe
-nwisNE <- read_csv('C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NWIS_SiteInfo_NE_RAW.csv')
+gagesNE <- read_csv('C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NWIS_SiteInfo_NE_RAW.csv')
 
 #8. Reveal the names of the columns 
-colnames(nwisNE)
+colnames(gagesNE)
 ```
 
 9. What columns in the dataset contain the x and y coordinate values, respectively?
@@ -98,12 +102,11 @@ colnames(nwisNE)
 
 ```{r Convert dataframe to sf dataframe}
 #10. Convert to an sf object
-#Read our EPA points into a spatial dataframe
-nwisNE_sf <- nwisNE %>% 
-  st_as_sf(coords = c('dec_long_va','dec_lat_va'), crs=4269) # these long lats might be reversed
+gagesNE_sf <- gagesNE %>% 
+  st_as_sf(coords = c('dec_long_va','dec_lat_va'), crs=4269)
 
 #11. Re-examine the column names
-colnames(nwisNE_sf)
+colnames(gagesNE_sf)
 ```
 
 12. What new field(s) appear in the sf dataframe created? What field(s), if any, disappeared?
@@ -121,8 +124,9 @@ colnames(nwisNE_sf)
 ```{r Plot the spatial features}
 #13. Plot the gage locations atop the county features using long & lat as X & Y
 ggplot() + 
-  geom_sf(data=cb2018NE_sf, aes()) +
-  geom_sf(data=nwisNE_sf, aes())
+  geom_sf(data=countiesNE_sf, aes()) + 
+  geom_sf(data=gagesNE_sf, aes())
+# I could add aesthetic info but am leaving it simple/bare-bones for now 
 ```
 
 ### Read in the gage height data and join the site location data to it.
@@ -139,19 +143,19 @@ Lastly, we want to attach some gage height data to our site locations. I've cons
 
 ```{r}
 #14. Read the site flow data into a data frame
-nwisNEflow <- read_csv('C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NWIS_SiteFlowData_NE_RAW.csv')
+gagesNEflow <- read_csv('C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NWIS_SiteFlowData_NE_RAW.csv')
 
 #15. Show the column names
-colnames(nwisNEflow)
+colnames(gagesNEflow)
 
 #16. Join location data to it
-nwisNEjoined <- inner_join(nwisNE_sf, nwisNEflow, by = "site_no")
+gagesNEjoined <- inner_join(gagesNE_sf, gagesNEflow, by = "site_no")
 
 #17. Show the column names of the joined dataset
-colnames(nwisNEjoined)
+colnames(gagesNEjoined)
 
 #18. Show the dimensions of this joined dataset
-dim(nwisNEjoined)
+dim(gagesNEjoined)
 ```
 
 ### Map the pattern of gage height data
@@ -161,10 +165,10 @@ Now we can examine where the flooding appears most acute by visualizing gage hei
  * Show the magnitude of gage height by color, shape, other visualization technique.
 
 ```{r}
-#Map the points, sized by gage height
+#19 Map the points, sized by gage height
 ggplot() + 
-  geom_sf(data=cb2018NE_sf, aes()) +
-  geom_sf(data=nwisNEjoined, aes(color="red", alpha = .1, size=gage_ht))
+  geom_sf(data=countiesNE_sf, aes()) +
+  geom_sf(data=gagesNEjoined, aes(color="red", alpha = .1, size=gage_ht))
 ```
 
 ---
@@ -180,13 +184,13 @@ Up next we will do some spatial analysis with our data. To prepare for this, we 
 
 ```{r}
 #20 Transform the counties and gage location datasets to UTM Zone 14
-cb2018NE_sf_UTM <- st_transform(cb2018NE_sf, crs=26914)
-nwisNE_sf_UTM <- st_transform(nwisNE_sf, crs=26914)
+countiesNE_sf_UTM <- st_transform(countiesNE_sf, crs=26914)
+gagesNE_sf_UTM <- st_transform(gagesNE_sf, crs=26914)
 
 #21 Plot the data
 ggplot() + 
-  geom_sf(data=cb2018NE_sf_UTM, aes()) +
-  geom_sf(data=nwisNE_sf_UTM, aes(color="red"))
+  geom_sf(data=countiesNE_sf_UTM, aes()) +
+  geom_sf(data=gagesNE_sf_UTM, aes(color="red"))
 ```
 
 ### Select the gages falling within a given county
@@ -202,13 +206,13 @@ Now let's zoom into a particular county and examine the gages located there.
 
 ```{r}
 #22 Select the county
-lancaster <- cb2018NE_sf_UTM %>% filter(NAME %in% c("Lancaster"))
+lancaster <- countiesNE_sf_UTM %>% filter(NAME %in% c("Lancaster"))
 
 #23 Select gages within the selected county
-gagesLancaster <- nwisNE_sf_UTM %>% st_intersection(lancaster)
+gagesLancaster <- gagesNE_sf_UTM %>% st_intersection(lancaster)
 
 #24 Plot
-mapview(cb2018NE_sf_UTM, alpha.regions = .4, col.regions = 'gray', color = "black") + 
+mapview(countiesNE_sf_UTM, alpha.regions = .4, col.regions = 'gray', color = "black") + 
   mapview(lancaster, alpha.regions = .5, col.regions = 'blue') +
   mapview(gagesLancaster, col.regions = 'red')
 ```
