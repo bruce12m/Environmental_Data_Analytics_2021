@@ -23,10 +23,10 @@ library(viridis)
 #install.packages("rvest")
 library(rvest)
 
-#install.packages("dataRetrieval")
+install.packages("dataRetrieval")
 library(dataRetrieval)
 
-#install.packages("tidycensus")
+install.packages("tidycensus")
 library(tidycensus)
 
 # Set theme
@@ -82,7 +82,7 @@ The power in this is that we aren't limited to sending requests and handling res
 
 ```{r pull.and.plot.discharge.data}
 #Set the URL
-theURL <- 'https://waterdata.usgs.gov/nwis/uv?search_site_no=02087500&period=7&format=rdb'
+theURL <- 'https://waterdata.usgs.gov/nwis/uv?search_site_no=02085070&period=24&format=rdb'
 
 #Get the data, which starts on line 30
 gage_data <- read.table(theURL,skip = 29,header=TRUE,sep='\t') 
@@ -203,16 +203,23 @@ The RVest scraping workflow is as follows:
 
 ```{r eval=FALSE}
 #1 Link to the web site using read_html
-the_website
+the_website <- read_html('https://www.eia.gov/electricity/state/')
 
 #2&3 Locate elements and read their text attributes into variables
-the_states <- 
-the_price <- 
-the_capacity <- 
-net_generation <- 
-total_retail <- 
+the_states <- the_website %>% html_nodes(".tablesorter a") %>% html_text() 
+the_price <- the_website %>% html_nodes("td:nth-child(2)") %>% html_text()
+the_capacity <- the_website %>% html_nodes("td:nth-child(3)") %>% html_text()
+net_generation <- the_website %>% html_nodes("td:nth-child(4)") %>% html_text()
+total_retail <- the_website %>% html_nodes("td:nth-child(5)") %>% html_text()
   
 #3 Construct a dataframe from the values
+df_energy <- data.frame(state = the_states, 
+                        price_c_MWh = the_price,
+                        capacity_MWh = the_capacity,
+                        #capacity_MWh = as.numeric(",","",gsub(the_capacity)),
+                        net_generation_MWh = net_generation, 
+                        total_retail_sales_MWh = total_retail) %>%
+  mutate(year = 2019)
 ```
 
 
