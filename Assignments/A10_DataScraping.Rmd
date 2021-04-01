@@ -1,6 +1,6 @@
 ---
 title: "Assignment 10: Data Scraping"
-author: "Student Name"
+author: Molly Bruce
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -32,7 +32,18 @@ The completed exercise is due on Tuesday, April 6 at 11:59 pm.
 ```{r, message = FALSE}
 #1
 
+# Check working directory 
+getwd()
 
+# Load packages previously installed
+library(tidyverse)
+library(rvest)
+
+# Set ggplot theme
+mytheme <- theme_classic() +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
 ```
 
 2. We will be scraping data from the NC DEQs Local Water Supply Planning website, specifically the Durham's 2019 Municipal Local Water Supply Plan (LWSP): 
@@ -41,11 +52,13 @@ The completed exercise is due on Tuesday, April 6 at 11:59 pm.
  * Scroll down and select the LWSP link next to Durham Municipality. 
  * Note the web address: <https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2019>
 
-Indicate this website as the as the URL to be scraped. 
+Indicate this website as the URL to be scraped. 
 
 ```{r set.the.scraping.website}
 #2
 
+URL <- read_html('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2019')
+URL
 
 ```
 
@@ -64,6 +77,25 @@ In the code chunk below scrape these values into the supplied variable names.
 ```{r scrape.the.data}
 #3
 
+water_system_name <- URL %>% 
+  html_nodes("div+ table tr:nth-child(1) td:nth-child(2)") %>% 
+  html_text()
+water_system_name
+
+PSWID <- URL %>% 
+  html_nodes("td tr:nth-child(1) td:nth-child(5)") %>% 
+  html_text()
+PSWID
+
+ownership <- URL %>% 
+  html_nodes("div+ table tr:nth-child(2) td:nth-child(4)") %>% 
+  html_text()
+ownership
+
+mmw <- URL %>% 
+  html_nodes("th~ td+ td") %>% 
+  html_text()
+mmw
 
 ```
 
@@ -77,11 +109,22 @@ In the code chunk below scrape these values into the supplied variable names.
 ```{r create.a.dataframe.from.scraped.data}
 #4
 
+# Convert to a dataframe
+dfURL <- data.frame(water_system_name = water_system_name,
+                    PSWID = PSWID, 
+                    ownership = ownership, 
+                    maximum_withdrawl_MGD = as.numeric(mmw),
+                    Month = c('Jan','May','Sep','Feb','Jun','Oct','Mar','Jul','Nov','Apr','Aug','Dec'),
+                    MonthNum = c(1,5,9,2,6,10,3,7,11,4,8,12))
 
+#5 
 
-#5
-
-
+# Plot by month
+ggplot(dfURL,aes(x=Month,y=maximum_withdrawl_MGD)) + 
+  geom_point() + 
+  labs(title = paste("2019 Water Usage Data For ",water_system_name),
+       y="Max Withdrawal (mgd)",
+       x="Month")
 
 ```
 
