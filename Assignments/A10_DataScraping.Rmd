@@ -137,60 +137,43 @@ ggplot(dfURL,aes(x=Month,y=maximum_withdrawl_MGD)) +
 ```{r construct.a.scraping.function}
 #6.
 
+scrape <- function(year, PSWID){
+  
+  # Retrieve the website contents 
+  the_website <- read_html(paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=/',
+  PSWID, '&year=',year))
+
+  # Set the element address variables
+  water_system_name_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
+  PSWID_tag <- "td tr:nth-child(1) td:nth-child(5)"
+  ownership_tag <- "div+ table tr:nth-child(2) td:nth-child(4)"
+  mmw_tag <- "th~ td+ td"
+
+  # Scrape the data items
+  waterSystemName <- the_website %>% html_nodes(water_system_name_tag) %>% html_text()
+  PSWIDValue <- the_website %>%   html_nodes(PSWID_tag) %>%  html_text()
+  ownershipName <- the_website %>% html_nodes(ownership_tag) %>% html_text()
+  mmwAmount <- the_website %>% html_nodes(mmw_tag) %>% html_text()  
+  
+  # Convert to a dataframe
+  dfwebsite <- data.frame(Month = c('Jan','May','Sep','Feb','Jun','Oct','Mar','Jul','Nov','Apr','Aug','Dec'),
+                          MonthNum = c(1,5,9,2,6,10,3,7,11,4,8,12)) %>%
+    mutate(Water_System_Mame = !!waterSystemName,
+           PSWID = !!PSWIDValue, 
+           Ownership = !!ownershipName, 
+           Maximum_Withdrawl_MGD = !!as.numeric(mmwAmount))
+
+  # Order my Months in the 'csv' correctly 
+  dfwebsite$Month <- factor(dfURL$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+  
+  #Return the dataframe
+  return(dfwebsite)  
+  
+}
+
 ```
 
 ````{r}
-
-#Create our scraping function
-scrape.it <- function(the_year, the_facility){
-  
-  #Retrieve the website contents 
-  the_website <- read_html(paste0('https://www.ncwater.org/WUDC/app/WWATR/report/view/', 
-                                  the_facility, '/', the_year))
-  
-  #Set the element address variables (determined in the previous step)
-  the_registrant_tag <- '.table tr:nth-child(1) td:nth-child(2)'
-  the_facility_name_tag <- 'tr:nth-child(2) th+ .left:nth-child(2)'
-  the_facility_id_tag <- 'tr:nth-child(2) .left~ .left+ td.left'
-  the_data_tag <- '.table:nth-child(7) td:nth-child(7) , .table:nth-child(7) td:nth-child(3)'
-  
-  #Scrape the data items
-  the_registrant <- the_website %>% html_nodes(the_registrant_tag) %>% html_text()
-  the_facility_name <- the_website %>%   html_nodes(the_facility_name_tag) %>%  html_text()
-  the_facility_type <- the_website %>% html_nodes(the_facility_id_tag) %>% html_text()
-  avg_withdrawals <- the_website %>% html_nodes(the_data_tag) %>% html_text()
-  
-  #Convert to a dataframe
-  df_withdrawals <- data.frame("Month" = rep(1:12),
-                               "Year" = rep(the_year,12),
-                               "Avg_Withdrawals_mgd" = as.numeric(avg_withdrawals)) %>% 
-    mutate(Registrant = !!the_registrant,
-           Facility_name = !!the_facility_name,
-           Facility_type = !!the_facility_type,
-           Date = my(paste(Month,"-",Year)))
-  
-  #Pause for a moment - scraping etiquette
-  #Sys.sleep(1) #uncomment this if you are doing bulk scraping!
-  
-  #Return the dataframe
-  return(df_withdrawals)
-}
-
-#Run the function
-the_df <- scrape.it(2018,'0004-0001')
-view(the_df)
-
-#Set the inputs to scrape years 2015 to 2020 for the site "0004-0001"
-the_years = rep(2018:2020)
-my_facility = '0004-0001'
-
-#Use lapply to apply the scrape function
-the_dfs <- lapply(X = the_years,
-                  FUN = scrape.it,
-                  the_facility=my_facility)
-
-#OR, use purrr's map function
-the_dfs <- map(the_years,scrape.it,the_facility=my_facility)
 
 #Conflate the returned dataframes into a single dataframe
 the_df <- bind_rows(the_dfs)
@@ -210,6 +193,26 @@ ggplot(the_df,aes(x=Date,y=Avg_Withdrawals_mgd)) +
 ```{r fetch.and.plot.Durham.2015.data}
 #7
 
+# Run the function
+the_df <- scrape(2015, '03-32-010')
+view(the_df)
+
+# Set the inputs to scrape years 2015 to 2020 for the site "0004-0001"
+#year = 2015
+#PSWID = '03-32-010'
+
+# Use lapply to apply the scrape function
+#the_dfs <- lapply(X = year,
+#                  FUN = scrape,
+#                  the_facility=PSWID)
+
+# Plot
+ggplot(the_df,aes(x=Month,y=Maximum_Withdrawl_MGD)) + 
+  geom_line() + 
+  geom_smooth(method="loess",se=FALSE) +
+  labs(title = paste(year," Water Withdrawals for",PSWID),
+       y="Withdrawal (mgd)",
+       x="Month")
 
 ```
 

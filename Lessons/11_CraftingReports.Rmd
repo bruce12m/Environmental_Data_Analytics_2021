@@ -70,6 +70,12 @@ See: <https://rmarkdown.rstudio.com> and class recording.
 
 Create a table below that details the example datasets we have been using in class. The first column should contain the names of the datasets and the second column should include some relevant information about the datasets. (Hint: use the cheat sheets to figure out how to make a table in Rmd)
 
+Dataset                  | Information: dimensions
+-----------------------  | -----------------------
+EPAair_O3_NC2019_raw     | 10592 X 20
+EPAair_PM25_NC2019_raw   | 8581 X 20
+EPAair_O3_NC2018_raw     | 9737 X 20
+EPAair_PM25_NC2018_raw   | 8983 X 20
 
 ## R CHUNK EDITING CHALLENGE
 
@@ -103,13 +109,13 @@ theme_set(mytheme)
 
 Load the NTL-LTER_Lake_Nutrients_Raw dataset, display the head of the dataset, and set the date column to a date format.Customize the chunk options such that the code is run but is not displayed in the final document.
 
-
 ```{r load data, echo = FALSE}
 
 # Providing full paths b/c RStudio on my VM won't process the relative paths
 # I recognize that relative paths are preferable
 
 LTER <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv")
+head(LTER)
 
 LTER$sampledate <- as.Date(LTER$sampledate, format = "%m/%d/%y")
 
@@ -134,7 +140,7 @@ LTER <- LTER %>%
 
 Create a second R chunk to create a summary dataset with the mean, minimum, maximum, and standard deviation of total nitrogen concentrations for each lake. Create a second summary dataset that is identical except that it evaluates total phosphorus. Customize the chunk options such that the code is run but not displayed in the final document.
 
-```{r}
+```{r summarize, echo = FALSE}
 
 LTER_summary_n <- LTER %>% 
     group_by(lakename) %>%
@@ -157,23 +163,44 @@ Create a third R chunk that uses the function `kable` in the knitr package to di
 ```{r kable, echo = FALSE}
 
 n_table <- kable(LTER_summary_n, caption = "Nitrogen Statistics Per Lake")
+n_table
 
 p_table <- kable(LTER_summary_p, caption = "Phosphorous Statistics Per Lake")
+p_table
 
 ```
 
 Create a fourth and fifth R chunk that generates two plots (one in each chunk): one for total N over time with different colors for each lake, and one with the same setup but for total P. Decide which geom option will be appropriate for your purpose, and select a color palette that is visually pleasing and accessible. Customize the chunk options such that the final figures are displayed but not the code used to generate the figures. In addition, customize the chunk options such that the figures are aligned on the left side of the page. Lastly, add a fig.cap chunk option to add a caption (title) to your plot that will display underneath the figure.
 
-```{r}
+```{r, echo = FALSE, fig.align = "left", fig.cap = "Plot of nitrogen levels over time at data lakes"}
 
+nPlot <- ggplot(LTER, 
+                         aes(x = sampledate, 
+                             y = tn_ug, 
+                             color = lakename)) + 
+  geom_point(size = 1, alpha = .5) + 
+  labs(title = "Nitrogen Levels for Lakes",
+       y = "Nitrogen (ug/L)",
+       x = "Date") +
+    theme(plot.title = element_text(hjust=0.5))
+nPlot
 
 ```
 
-```{r}
+```{r, echo = FALSE, fig.align = "left", fig.cap = "Plot of phosphorous levels over time at data lakes"}
 
+pPlot <- ggplot(LTER, 
+                         aes(x = sampledate, 
+                             y = tp_ug, 
+                             color = lakename)) + 
+  geom_point(size = 1, alpha = .5) + 
+  labs(title = "Phosphorous Levels for Lakes",
+       y = "Phosphorous (ug/L)",
+       x = "Date") +
+    theme(plot.title = element_text(hjust=0.5))
+pPlot
 
 ```
-
 
 ### Communicating results
 
