@@ -38,6 +38,7 @@ getwd()
 # Load packages previously installed
 library(tidyverse)
 library(rvest)
+library(lubridate)
 
 # Set ggplot theme
 mytheme <- theme_classic() +
@@ -110,17 +111,26 @@ mmw
 #4
 
 # Convert to a dataframe
-dfURL <- data.frame(water_system_name = water_system_name,
-                    PSWID = PSWID, 
-                    ownership = ownership, 
-                    maximum_withdrawl_MGD = as.numeric(mmw),
-                    Month = c('Jan','May','Sep','Feb','Jun','Oct','Mar','Jul','Nov','Apr','Aug','Dec'),
-                    MonthNum = c(1,5,9,2,6,10,3,7,11,4,8,12))
+dfURL <- data.frame("water_system_name" = water_system_name,
+                    "PSWID" = PSWID, 
+                    "ownership" = ownership, 
+                    "maximum_withdrawl_MGD" = as.numeric(mmw),
+                    "Month" = c('Jan','May','Sep','Feb','Jun','Oct',
+                              'Mar','Jul','Nov','Apr','Aug','Dec'),
+                    "MonthNum" = c('01','05','09','02','06','10',
+                                   '03','07','11','04','08','12'),
+                    "Year" = rep(2019,12),
+                    #"Date" = my(paste0(MonthNum, "-", Year)))
+                    Date = my(012019, 052019, 092019, 022019, 
+                             062019, 102019, 032019, 072019, 
+                             112019, 042019, 082019, 122019))
 
 #5 
 
 # Order my Months in the 'csv' correctly 
-dfURL$Month <- factor(dfURL$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+dfURL$Month <- factor(dfURL$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+                                            'May', 'Jun', 'Jul', 'Aug', 
+                                            'Sep', 'Oct', 'Nov', 'Dec'))
 
 # Plot by month
 # format this so that it's prettier (centered title)
@@ -137,11 +147,39 @@ ggplot(dfURL,aes(x=Month,y=maximum_withdrawl_MGD)) +
 ```{r construct.a.scraping.function}
 #6.
 
+#baseURL <- 'https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid='
+#PSWID <- '03-32-010'
+#year <- 2020
+#scrapeURL <- paste0(baseURL,PSWID,'&year=',year)
+
+#URL <- read_html(scrapeURL)
+
+#water_system_name_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
+#PSWID_tag <- "td tr:nth-child(1) td:nth-child(5)"
+#ownership_tag <- "div+ table tr:nth-child(2) td:nth-child(4)"
+#mmw_tag <- "th~ td+ td"
+
+#water_system_name <- URL %>% html_nodes(water_system_name_tag) %>% html_text()
+#PSWID <- URL %>% html_nodes(PSWID_tag) %>% html_text()
+#ownership <- URL %>% html_nodes(ownership_tag) %>% html_text()
+#mmw <- URL %>% html_nodes(mmw_tag) %>% html_text()
+
+#dfURL2 <- data.frame("Month" = c('Jan','May','Sep','Feb','Jun','Oct',
+#                              'Mar','Jul','Nov','Apr','Aug','Dec'),
+#                    "MonthNum" = c('01','05','09','02','06','10',
+#                                   '03','07','11','04','08','12'),
+#                    "Year" = rep(year,12)) %>% 
+#  mutate("water_system_name" = !!water_system_name,
+#         "PSWID" = !!PSWID, 
+#         "ownership" = !!ownership, 
+#         "maximum_withdrawl_MGD" = as.numeric(!!mmw),
+#         "Date" = my(paste0(MonthNum,"-",year)))
+
 scrape <- function(year, PSWID){
   
   # Retrieve the website contents 
-  the_website <- read_html(paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=/',
-  PSWID, '&year=',year))
+  the_website <- read_html(paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=',
+  PSWID,'&year=',year))
 
   # Set the element address variables
   water_system_name_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
@@ -156,36 +194,28 @@ scrape <- function(year, PSWID){
   mmwAmount <- the_website %>% html_nodes(mmw_tag) %>% html_text()  
   
   # Convert to a dataframe
-  dfwebsite <- data.frame(Month = c('Jan','May','Sep','Feb','Jun','Oct','Mar','Jul','Nov','Apr','Aug','Dec'),
-                          MonthNum = c(1,5,9,2,6,10,3,7,11,4,8,12)) %>%
-    mutate(Water_System_Mame = !!waterSystemName,
-           PSWID = !!PSWIDValue, 
-           Ownership = !!ownershipName, 
-           Maximum_Withdrawl_MGD = !!as.numeric(mmwAmount))
-
+  dfURL2 <- data.frame("Month" = c('Jan','May','Sep','Feb','Jun','Oct',
+                                   'Mar','Jul','Nov','Apr','Aug','Dec'),
+                       "MonthNum" = c('01','05','09','02','06','10',
+                                      '03','07','11','04','08','12'),
+                       "Year" = rep(year,12), 
+                       "YearChar" = as.character(rep(year, 12))) %>% 
+    mutate("water_system_name" = !!water_system_name,
+           "PSWID" = !!PSWID, 
+           "ownership" = !!ownership, 
+           "maximum_withdrawl_MGD" = as.numeric(!!mmw),
+           "Date" = my(paste0(MonthNum,"-",year)))
+  
   # Order my Months in the 'csv' correctly 
-  dfwebsite$Month <- factor(dfURL$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+  dfURL2$Month <- factor(dfURL2$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+                                                   'May', 'Jun', 'Jul', 'Aug', 
+                                                   'Sep', 'Oct', 'Nov', 'Dec'))
   
   #Return the dataframe
-  return(dfwebsite)  
+  return(dfURL2)  
   
 }
 
-```
-
-````{r}
-
-#Conflate the returned dataframes into a single dataframe
-the_df <- bind_rows(the_dfs)
-
-#Plot, because it's fun and rewarding
-ggplot(the_df,aes(x=Date,y=Avg_Withdrawals_mgd)) + 
-  geom_line() + 
-  geom_smooth(method="loess",se=FALSE) +
-  labs(title = paste(the_years," Water usage data for",the_registrant),
-       subtitle = the_facility_name,
-       y="Withdrawal (mgd)",
-       x="Date")
 ```
 
 7. Use the function above to extract and plot max daily withdrawals for Durham for each month in 2015
@@ -194,25 +224,23 @@ ggplot(the_df,aes(x=Date,y=Avg_Withdrawals_mgd)) +
 #7
 
 # Run the function
-the_df <- scrape(2015, '03-32-010')
-view(the_df)
+thedf <- scrape(2015, '03-32-010')
+view(thedf)
 
-# Set the inputs to scrape years 2015 to 2020 for the site "0004-0001"
-#year = 2015
-#PSWID = '03-32-010'
-
-# Use lapply to apply the scrape function
-#the_dfs <- lapply(X = year,
-#                  FUN = scrape,
-#                  the_facility=PSWID)
+thedf$Month <- factor(thedf$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+                                            'May', 'Jun', 'Jul', 'Aug', 
+                                            'Sep', 'Oct', 'Nov', 'Dec'))
 
 # Plot
-ggplot(the_df,aes(x=Month,y=Maximum_Withdrawl_MGD)) + 
-  geom_line() + 
-  geom_smooth(method="loess",se=FALSE) +
-  labs(title = paste(year," Water Withdrawals for",PSWID),
-       y="Withdrawal (mgd)",
-       x="Month")
+ggplot(thedf,aes(x=Month,y=maximum_withdrawl_MGD)) + 
+  geom_point() +
+  labs(title = "2015 Water Withdrawals for Durham",
+    #title = paste(YearChar, "Water withdrawals for", PSWID),
+       y = "Withdrawal (mgd)",
+       x = "Month")
+#  labs(title = paste0(year,"Water Withdrawals for",PSWID),
+#       y="Withdrawal (mgd)",
+#       x="Month")
 
 ```
 
