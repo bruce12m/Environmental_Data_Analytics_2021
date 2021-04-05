@@ -200,10 +200,10 @@ scrape <- function(year, PSWID){
                                       '03','07','11','04','08','12'),
                        "Year" = rep(year,12), 
                        "YearChar" = as.character(rep(year, 12))) %>% 
-    mutate("water_system_name" = !!water_system_name,
-           "PSWID" = !!PSWID, 
-           "ownership" = !!ownership, 
-           "maximum_withdrawl_MGD" = as.numeric(!!mmw),
+    mutate("water_system_name" = !!waterSystemName,
+           "PSWID" = !!PSWIDValue, 
+           "ownership" = !!ownershipName, 
+           "maximum_withdrawl_MGD" = as.numeric(!!mmwAmount),
            "Date" = my(paste0(MonthNum,"-",year)))
   
   # Order my Months in the 'csv' correctly 
@@ -224,7 +224,15 @@ scrape <- function(year, PSWID){
 #7
 
 # Run the function
-thedf <- scrape(2015, '03-32-010')
+baseURL <- 'https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid='
+PSWID <- '03-32-010'
+year <- 2015
+scrapeURL <- paste0(baseURL,PSWID,'&year=',year)
+URL <- read_html(scrapeURL)
+water_system_name_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
+water_system_name <- URL %>% html_nodes(water_system_name_tag) %>% html_text()
+
+thedf <- scrape(year, PSWID)
 view(thedf)
 
 thedf$Month <- factor(thedf$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
@@ -234,13 +242,9 @@ thedf$Month <- factor(thedf$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr',
 # Plot
 ggplot(thedf,aes(x=Month,y=maximum_withdrawl_MGD)) + 
   geom_point() +
-  labs(title = "2015 Water Withdrawals for Durham",
-    #title = paste(YearChar, "Water withdrawals for", PSWID),
+  labs(title = paste0(year, " Water Withdrawals for ", water_system_name, ", PSWID: ", PSWID),
        y = "Withdrawal (mgd)",
        x = "Month")
-#  labs(title = paste0(year,"Water Withdrawals for",PSWID),
-#       y="Withdrawal (mgd)",
-#       x="Month")
 
 ```
 
@@ -249,6 +253,35 @@ ggplot(thedf,aes(x=Month,y=maximum_withdrawl_MGD)) +
 ```{r fetch.and.plot.Durham.2015.data}
 #8
 
+PSWID <- '01-11-010'
+year <- 2015
+thedf <- scrape(year, PSWID)
+view(thedf)
+
+thedf$Month <- factor(thedf$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+                                            'May', 'Jun', 'Jul', 'Aug', 
+                                            'Sep', 'Oct', 'Nov', 'Dec'))
+
+#Create a subset of facilities
+PSWID <- c('01-11-010','03-32-010')
+year = 2015
+#thedf2 <- scrape(year, PSWID)
+#view(thedf2)
+
+#thedf$Month <- factor(thedf2$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+#                                            'May', 'Jun', 'Jul', 'Aug', 
+#                                            'Sep', 'Oct', 'Nov', 'Dec'))
+
+#Use the cross2 function to generate a list of unique combos of year and facility ids
+#Then send apply our scrape.it function to grab values into a list of dataframes
+dfGood <- cross2(year,PSWID) %>% 
+  map(lift(scrape)) %>% 
+  bind_rows()
+
+dfsGood <- lapply(X = year,
+                  FUN = scrape,
+                  PSWID=PSWID)
+dfGoodBig <- bind_rows(dfsGood)
 
 ```
 
@@ -258,7 +291,36 @@ ggplot(thedf,aes(x=Month,y=maximum_withdrawl_MGD)) +
 ```{r}
 #9
 
+baseURL <- 'https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid='
+PSWID <- '01-11-010'
+year <- rep(2010:2019)
+scrapeURL <- paste0(baseURL,PSWID,'&year=',year)
+URL <- read_html(scrapeURL)
+water_system_name_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
+water_system_name <- URL %>% html_nodes(water_system_name_tag) %>% html_text()
+
+thedf <- scrape(year, PSWID)
+view(thedf)
+
+#This is probably wrong here and is messing up the ggplot below 
+thedf$Month <- factor(thedf$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+                                            'May', 'Jun', 'Jul', 'Aug', 
+                                            'Sep', 'Oct', 'Nov', 'Dec'))
+
+the_dfs <- lapply(X = year,
+                  FUN = scrape,
+                  PSWID=PSWID)
+dfBig <- bind_rows(the_dfs)
+
+ggplot(dfBig,aes(x=Date,y=maximum_withdrawl_MGD)) + 
+  geom_point() +
+  geom_smooth(method="loess",se=FALSE) + 
+  labs(title = paste0("Water Withdrawals for ", water_system_name, ", PSWID: ", PSWID),
+       y = "Withdrawal (mgd)",
+       x = "Date")
 
 ```
 
 >Question: Just by looking at the plot (i.e. not running statistics), does Asheville have a trend in water usage over time?
+
+The line of best fit indicates that, particularly over the past ~2 years, Asheville's water consumption has been increasing.
