@@ -58,9 +58,9 @@ Indicate this website as the URL to be scraped.
 ```{r set.the.scraping.website}
 #2
 
+# Indicate scraped URL 
 URL <- read_html('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2019')
 URL
-
 ```
 
 3. The data we want to collect are listed below:
@@ -78,26 +78,29 @@ In the code chunk below scrape these values into the supplied variable names.
 ```{r scrape.the.data}
 #3
 
+# Scrape water system name and show it 
 water_system_name <- URL %>% 
   html_nodes("div+ table tr:nth-child(1) td:nth-child(2)") %>% 
   html_text()
 water_system_name
 
+# Scrape PSWID and show it 
 PSWID <- URL %>% 
   html_nodes("td tr:nth-child(1) td:nth-child(5)") %>% 
   html_text()
 PSWID
 
+# Scrape ownership and show it 
 ownership <- URL %>% 
   html_nodes("div+ table tr:nth-child(2) td:nth-child(4)") %>% 
   html_text()
 ownership
 
+# Scrape maximum monthly withdrawals and show it 
 mmw <- URL %>% 
   html_nodes("th~ td+ td") %>% 
   html_text()
 mmw
-
 ```
 
 
@@ -115,31 +118,32 @@ dfURL <- data.frame("water_system_name" = water_system_name,
                     "PSWID" = PSWID, 
                     "ownership" = ownership, 
                     "maximum_withdrawl_MGD" = as.numeric(mmw),
+                    # Add month column for data 
                     "Month" = c('Jan','May','Sep','Feb','Jun','Oct',
                               'Mar','Jul','Nov','Apr','Aug','Dec'),
                     "MonthNum" = c('01','05','09','02','06','10',
                                    '03','07','11','04','08','12'),
+                    # Add year column for data 
                     "Year" = rep(2019,12),
-                    #"Date" = my(paste0(MonthNum, "-", Year)))
+                    # Add date column of month & year 
                     Date = my(012019, 052019, 092019, 022019, 
                              062019, 102019, 032019, 072019, 
                              112019, 042019, 082019, 122019))
 
 #5 
 
-# Order my Months in the 'csv' correctly 
+# Order my Months in the 'csv' correctly (for plot purposes)
 dfURL$Month <- factor(dfURL$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
                                             'May', 'Jun', 'Jul', 'Aug', 
                                             'Sep', 'Oct', 'Nov', 'Dec'))
 
 # Plot by month
-# format this so that it's prettier (centered title)
 ggplot(dfURL,aes(x=Month,y=maximum_withdrawl_MGD)) + 
   geom_point() + 
-  labs(title = paste("2019 Water Usage Data For ",water_system_name),
+  labs(title = paste("2019 Water Usage Data For",water_system_name),
        y="Max Withdrawal (mgd)",
-       x="Month")
-
+       x="Month") + 
+  theme(plot.title = element_text(hjust=0.5))
 ```
 
 6. Note that the PWSID and the year appear in the web address for the page we scraped. Construct a function using your code above that can scrape data for any PWSID and year for which the NC DEQ has data. Be sure to modify the code to reflect the year and data scraped.
@@ -147,34 +151,7 @@ ggplot(dfURL,aes(x=Month,y=maximum_withdrawl_MGD)) +
 ```{r construct.a.scraping.function}
 #6.
 
-#baseURL <- 'https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid='
-#PSWID <- '03-32-010'
-#year <- 2020
-#scrapeURL <- paste0(baseURL,PSWID,'&year=',year)
-
-#URL <- read_html(scrapeURL)
-
-#water_system_name_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
-#PSWID_tag <- "td tr:nth-child(1) td:nth-child(5)"
-#ownership_tag <- "div+ table tr:nth-child(2) td:nth-child(4)"
-#mmw_tag <- "th~ td+ td"
-
-#water_system_name <- URL %>% html_nodes(water_system_name_tag) %>% html_text()
-#PSWID <- URL %>% html_nodes(PSWID_tag) %>% html_text()
-#ownership <- URL %>% html_nodes(ownership_tag) %>% html_text()
-#mmw <- URL %>% html_nodes(mmw_tag) %>% html_text()
-
-#dfURL2 <- data.frame("Month" = c('Jan','May','Sep','Feb','Jun','Oct',
-#                              'Mar','Jul','Nov','Apr','Aug','Dec'),
-#                    "MonthNum" = c('01','05','09','02','06','10',
-#                                   '03','07','11','04','08','12'),
-#                    "Year" = rep(year,12)) %>% 
-#  mutate("water_system_name" = !!water_system_name,
-#         "PSWID" = !!PSWID, 
-#         "ownership" = !!ownership, 
-#         "maximum_withdrawl_MGD" = as.numeric(!!mmw),
-#         "Date" = my(paste0(MonthNum,"-",year)))
-
+# Create scrape function 
 scrape <- function(year, PSWID){
   
   # Retrieve the website contents 
@@ -215,7 +192,6 @@ scrape <- function(year, PSWID){
   return(dfURL2)  
   
 }
-
 ```
 
 7. Use the function above to extract and plot max daily withdrawals for Durham for each month in 2015
@@ -223,7 +199,7 @@ scrape <- function(year, PSWID){
 ```{r fetch.and.plot.Durham.2015.data}
 #7
 
-# Run the function
+# Create more useful inputs for function 
 baseURL <- 'https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid='
 PSWID <- '03-32-010'
 year <- 2015
@@ -232,57 +208,56 @@ URL <- read_html(scrapeURL)
 water_system_name_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
 water_system_name <- URL %>% html_nodes(water_system_name_tag) %>% html_text()
 
-thedf <- scrape(year, PSWID)
-view(thedf)
+# Run the function based on inputs and view output 
+thedfD <- scrape(year, PSWID)
+view(thedfD)
 
-thedf$Month <- factor(thedf$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+# Order my Months in the 'csv' correctly 
+thedfD$Month <- factor(thedfD$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
                                             'May', 'Jun', 'Jul', 'Aug', 
                                             'Sep', 'Oct', 'Nov', 'Dec'))
 
-# Plot
-ggplot(thedf,aes(x=Month,y=maximum_withdrawl_MGD)) + 
+# Plot 
+ggplot(thedfD,aes(x=Month,y=maximum_withdrawl_MGD)) + 
   geom_point() +
   labs(title = paste0(year, " Water Withdrawals for ", water_system_name, ", PSWID: ", PSWID),
        y = "Withdrawal (mgd)",
-       x = "Month")
-
+       x = "Month") + 
+  theme(plot.title = element_text(hjust=0.5))
 ```
 
 8. Use the function above to extract data for Asheville (PWSID = 01-11-010) in 2015. Combine this data with the Durham data collected above and create a plot that compares the Asheville to Durham's water withdrawals.
 
-```{r fetch.and.plot.Durham.2015.data}
+```{r fetch.and.plot.Asheville.2015.data}
 #8
 
+# Set inputs for Asheville 
 PSWID <- '01-11-010'
 year <- 2015
-thedf <- scrape(year, PSWID)
-view(thedf)
 
-thedf$Month <- factor(thedf$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+# Run the function based on inputs and view output 
+thedfA <- scrape(year, PSWID)
+view(thedfA)
+
+# Combine location data to it
+thedfjoined <- rbind(thedfD, thedfA)
+view(thedfjoined)
+
+# Order my Months in the 'csv' correctly 
+thedfjoined$Month <- factor(thedfjoined$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
                                             'May', 'Jun', 'Jul', 'Aug', 
                                             'Sep', 'Oct', 'Nov', 'Dec'))
 
-#Create a subset of facilities
-PSWID <- c('01-11-010','03-32-010')
-year = 2015
-#thedf2 <- scrape(year, PSWID)
-#view(thedf2)
-
-#thedf$Month <- factor(thedf2$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
-#                                            'May', 'Jun', 'Jul', 'Aug', 
-#                                            'Sep', 'Oct', 'Nov', 'Dec'))
-
-#Use the cross2 function to generate a list of unique combos of year and facility ids
-#Then send apply our scrape.it function to grab values into a list of dataframes
-dfGood <- cross2(year,PSWID) %>% 
-  map(lift(scrape)) %>% 
-  bind_rows()
-
-dfsGood <- lapply(X = year,
-                  FUN = scrape,
-                  PSWID=PSWID)
-dfGoodBig <- bind_rows(dfsGood)
-
+# Plot 
+ggplot(thedfjoined,
+       aes(x=Month,y=maximum_withdrawl_MGD,color=water_system_name)) + 
+  geom_point(size = 2.5) +
+  scale_color_manual(values = c("blue", "firebrick")) + 
+  labs(title = paste0(year, " Water Withdrawals For Select Municipalities"),
+       y = "Withdrawal (mgd)",
+       x = "Month",
+       color = "Water System Name:") + 
+  theme(plot.title = element_text(hjust=0.5))
 ```
 
 
@@ -291,36 +266,43 @@ dfGoodBig <- bind_rows(dfsGood)
 ```{r}
 #9
 
+# Set inputs 
 baseURL <- 'https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid='
 PSWID <- '01-11-010'
-year <- rep(2010:2019)
+years <- rep(2010:2019)
+
+# Add extra inputs for chart naming purposes 
+year <- 2010
 scrapeURL <- paste0(baseURL,PSWID,'&year=',year)
 URL <- read_html(scrapeURL)
 water_system_name_tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
 water_system_name <- URL %>% html_nodes(water_system_name_tag) %>% html_text()
 
-thedf <- scrape(year, PSWID)
-view(thedf)
+#Use lapply to apply the scrape function
+thedfs <- lapply(X = years,
+                  FUN = scrape,
+                  PSWID=PSWID)
 
-#This is probably wrong here and is messing up the ggplot below 
-thedf$Month <- factor(thedf$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
+#Conflate the returned dataframes into a single dataframe
+thedfAmore <- bind_rows(thedfs)
+view(thedfAmore)
+
+# Order my Months in the 'csv' correctly 
+thedfAmore$Month <- factor(thedfAmore$Month, levels=c('Jan', 'Feb', 'Mar', 'Apr', 
                                             'May', 'Jun', 'Jul', 'Aug', 
                                             'Sep', 'Oct', 'Nov', 'Dec'))
 
-the_dfs <- lapply(X = year,
-                  FUN = scrape,
-                  PSWID=PSWID)
-dfBig <- bind_rows(the_dfs)
-
-ggplot(dfBig,aes(x=Date,y=maximum_withdrawl_MGD)) + 
+# Plot ASheville water useage from 2010 to 2019
+ggplot(thedfAmore,
+       aes(x=Date,y=maximum_withdrawl_MGD)) + 
   geom_point() +
   geom_smooth(method="loess",se=FALSE) + 
   labs(title = paste0("Water Withdrawals for ", water_system_name, ", PSWID: ", PSWID),
        y = "Withdrawal (mgd)",
-       x = "Date")
-
+       x = "Date") +
+  theme(plot.title = element_text(hjust=0.5))
 ```
 
 >Question: Just by looking at the plot (i.e. not running statistics), does Asheville have a trend in water usage over time?
 
-The line of best fit indicates that, particularly over the past ~2 years, Asheville's water consumption has been increasing.
+The line of best fit indicates that, particularly over the past ~3 years, Asheville's water consumption has been increasing. Typically, industrial water users have a larger impact on usage patterns. Because this time line accords with the Trump administration's tenure and a general promotion of coal, my guess is that this increase in water usage might have something to do with increased power generation from coal and the ensuing water demands. 
