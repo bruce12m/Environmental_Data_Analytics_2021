@@ -1,7 +1,3 @@
-
-install.packages('shiny')
-install.packages('shinythemes')
-
 #### Load packages ----
 library(shiny)
 library(shinythemes)
@@ -12,7 +8,7 @@ library(tidyverse)
 # Specify the date column as a date
 # Remove negative values for depth_id 
 # Include only lakename and sampledate through po4 columns
-nutrient_data <- read_csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
+nutrient_data <- read_csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
 nutrient_data$sampledate <- as.Date(nutrient_data$sampledate, format = "%Y-%m-%d")
 nutrient_data <- nutrient_data %>%
   filter(depth_id > 0) %>%
