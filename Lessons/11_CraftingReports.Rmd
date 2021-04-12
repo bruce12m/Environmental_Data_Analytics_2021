@@ -31,7 +31,6 @@ output:
     + Chunk options allow for flexibility when the code runs and when the document is knitted
 3. **Text** with formatting options for readability in knitted document
 
-
 ## RESOURCES
 
 Handy cheat sheets for R markdown can be found: [here](https://rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf), and [here](https://raw.githubusercontent.com/rstudio/cheatsheets/master/rmarkdown-2.0.pdf).
@@ -39,7 +38,6 @@ Handy cheat sheets for R markdown can be found: [here](https://rstudio.com/wp-co
 There's also a quick reference available via the `Help`→`Markdown Quick Reference` menu.
 
 Lastly, this [website](https://rmarkdown.rstudio.com) give a great & thorough overview.
-
 
 ## THE KNITTING PROCESS
 -   The knitting sequence
@@ -53,18 +51,20 @@ Lastly, this [website](https://rmarkdown.rstudio.com) give a great & thorough ov
  - `warning = FALSE` - warnings do not appear...
  - `fig.cap = "..."` - adds a caption to graphical results
 
-
 ## WHAT ELSE CAN R MARKDOWN DO?
+
 See: <https://rmarkdown.rstudio.com> and class recording. 
  * Languages other than R...
  * Various outputs...
  
 ------------------------------------------------------------------------
 
-## WHY R MARKDOWN?
+### Why is R Markdown so great? 
 
-<Fill in our discussion below with bullet points. Use italics and bold for emphasis (hint: use the cheat sheets or `Help` →`Markdown Quick Reference` to figure out how to make bold and italic text).> 
-
+* Everthing is in __one place__
+* It's __reproducaible__ from one report/assignment to the next 
+* You can have _text explanations right alongside your code_
+* R is fairly easy for __troubleshooting__
 
 ## TEXT EDITING CHALLENGE
 
@@ -84,7 +84,10 @@ EPAair_PM25_NC2018_raw   | 8983 X 20
 Create an R chunk below that installs the package `knitr`. Instead of commenting out the code, customize the chunk options such that the code is not evaluated (i.e., not run).
 
 ```{r install.packages, eval = FALSE}
+
 install.packages('knitr')
+install.packages('RColorBrewer')
+
 ```
 
 ### Setup
@@ -93,12 +96,16 @@ Create an R chunk below called "setup" that checks your working directory, loads
 
 ```{r setup, message = FALSE}
 
+# Check working directory 
 getwd()
 
+# Load packages 
 library(tidyverse)
 library(lubridate)
 library(knitr)
+library(RColorBrewer)
 
+# Set ggplot theme 
 mytheme <- theme_classic(base_size = 12) +
   theme(axis.text = element_text(color = "black"), 
         legend.position = "right", 
@@ -114,9 +121,13 @@ Load the NTL-LTER_Lake_Nutrients_Raw dataset, display the head of the dataset, a
 # Providing full paths b/c RStudio on my VM won't process the relative paths
 # I recognize that relative paths are preferable
 
+# Load NTL-LTER_Lake_Nutrients_Raw dataset
 LTER <- read.csv("C:/Users/mmb88/Desktop/Environmental_Data_Analytics_2021/Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv")
+
+# Display head of dataset
 head(LTER)
 
+# Set data column to date format
 LTER$sampledate <- as.Date(LTER$sampledate, format = "%m/%d/%y")
 
 ```
@@ -131,10 +142,14 @@ Create an R chunk below to create a processed dataset do the following operation
 
 ```{r process}
 
+# Create processed dataset
 LTER <- LTER %>% 
-    select(lakename:sampledate, depth:po4) %>%
-    filter(depth == 0) %>% 
-    drop_na()
+  # Select designated columns 
+  select(lakename:sampledate, depth:po4) %>%
+  # Include only surface samples 
+  filter(depth == 0) %>% 
+  # Drop rows with missing data 
+  drop_na()
 
 ```
 
@@ -142,15 +157,19 @@ Create a second R chunk to create a summary dataset with the mean, minimum, maxi
 
 ```{r summarize, echo = FALSE}
 
+# Create summary dataset for Nitrogen 
 LTER_summary_n <- LTER %>% 
     group_by(lakename) %>%
+    # Summarize mean, minimum, maximum, and standard deviation 
     summarize(mean_tn = mean(tn_ug),
               max_tn = max(tn_ug),
               min_tn = min(tn_ug),
               sd_tn = sd(tn_ug))
 
+# Create summary dataset for Phosphorus 
 LTER_summary_p <- LTER %>% 
     group_by(lakename) %>%
+    # Summarize mean, minimum, maximum, and standard deviation 
     summarize(mean_tp = mean(tp_ug),
               max_tp = max(tp_ug),
               min_tp = min(tp_ug),
@@ -162,10 +181,18 @@ Create a third R chunk that uses the function `kable` in the knitr package to di
 
 ```{r kable, echo = FALSE}
 
-n_table <- kable(LTER_summary_n, caption = "Nitrogen Statistics Per Lake")
+# Create table of Nitrogen information using kable function 
+n_table <- kable(LTER_summary_n, 
+                 # Use caption code to title table 
+                 caption = "Nitrogen Statistics Per Lake")
+# Display table
 n_table
 
-p_table <- kable(LTER_summary_p, caption = "Phosphorous Statistics Per Lake")
+# Create table of Phosphorous information using kable function 
+p_table <- kable(LTER_summary_p, 
+                 # Use caption code to title table
+                 caption = "Phosphorous Statistics Per Lake")
+# Display table 
 p_table
 
 ```
@@ -174,30 +201,42 @@ Create a fourth and fifth R chunk that generates two plots (one in each chunk): 
 
 ```{r, echo = FALSE, fig.align = "left", fig.cap = "Plot of nitrogen levels over time at data lakes"}
 
+# Create a plot of total Nitrogen over time 
 nPlot <- ggplot(LTER, 
-                         aes(x = sampledate, 
-                             y = tn_ug, 
-                             color = lakename)) + 
-  geom_point(size = 1, alpha = .5) + 
+                aes(x = sampledate, 
+                    y = tn_ug, 
+                    # Show different colors for each lake
+                    color = lakename)) + 
+  geom_point(size = 1.5, alpha = 0.7) + 
   labs(title = "Nitrogen Levels for Lakes",
        y = "Nitrogen (ug/L)",
-       x = "Date") +
-    theme(plot.title = element_text(hjust=0.5))
+       x = "Date", 
+       color = "Lake:") +
+  theme(plot.title = element_text(hjust=0.5)) + 
+  scale_color_brewer(palette = "Dark2")
+
+# Show plot
 nPlot
 
 ```
 
 ```{r, echo = FALSE, fig.align = "left", fig.cap = "Plot of phosphorous levels over time at data lakes"}
 
+# Create a plot of total Phosphorous over time 
 pPlot <- ggplot(LTER, 
-                         aes(x = sampledate, 
-                             y = tp_ug, 
-                             color = lakename)) + 
-  geom_point(size = 1, alpha = .5) + 
+                aes(x = sampledate, 
+                    y = tp_ug, 
+                    # Show different colors for each lake 
+                    color = lakename)) + 
+  geom_point(size = 1.5, alpha = .7) + 
   labs(title = "Phosphorous Levels for Lakes",
        y = "Phosphorous (ug/L)",
-       x = "Date") +
-    theme(plot.title = element_text(hjust=0.5))
+       x = "Date", 
+       color = "Lake:") +
+  theme(plot.title = element_text(hjust=0.5)) + 
+  scale_color_brewer(palette = "Accent")
+
+# Show plot 
 pPlot
 
 ```
@@ -206,8 +245,18 @@ pPlot
 
 Write a paragraph describing your findings from the R coding challenge above. This should be geared toward an educated audience but one that is not necessarily familiar with the dataset. Then insert a horizontal rule below the paragraph. Below the horizontal rule, write another paragraph describing the next steps you might take in analyzing this dataset. What questions might you be able to answer, and what analyses would you conduct to answer those questions?
 
+### Description of findings
+
+In the upper midwest, there is a series of experimental lakes; these lakes have been home to an incredible series of experiments and time-series data tracking. The table summaries and charts above help capture pieces of information gathered through these experiments and this data. For instance, we can see that __Hummingbird Lake__ has the highest _average_ Phosphorous and Nitrogen levels. However, __East Long Lake__, __West Long Lake__, and __Peter Lake__ all have high Nitrogen and Phosphorous anomalies as told by their _max_ values. This information is substantiated by the _comparatively high standard deviations_ at East Long, West Long, and Peter Lakes. Visually, we can see these anomalies in the two charts of Nitrogen and Phosphorous levels at the lakes over time. For instance, those Nitrogen data points over 2000 ug/L belong to West Long Lake, East Long Lake, and Peter Lake. Likewise, those Phosphorous data points over 50 ug/L also belong to West Long Lake, East Long Lake, and Peter Lake. 
+
+------------------------------------------------------------------------
+
+### Description of next steps 
+
+These initial results are promising, but deserve further exploration. This further analysis of the experimental lakes dataset could consider Nitrogen and Phosphorous values at _different depths_. It could also examine information gathered for other data points collected at the lake such as _Phosphate_, _Ammonia_, and _Ammonium_. Finally, further exploration could also contemplate _yearly distinctions_ in the previously-run statistics. 
 
 ## KNIT YOUR PDF
+
 When you have completed the above steps, try knitting your PDF to see if all of the formatting options you specified turned out as planned. This may take some troubleshooting.
 
 ## OTHER R MARKDOWN CUSTOMIZATION OPTIONS
